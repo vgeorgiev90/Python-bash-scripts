@@ -1,12 +1,12 @@
 #!/bin/bash
 # docker command menu with ncurses
-# need docker and dialog packages 
-# there is little more functionality to be included.
+# needs docker and dialog packages
+# there is little more options to be included
 
 #functions - start
 
 funcDisplayMenu () {
- dialog --title "Docker Control Panel" --menu "please choose action" 15 45 6 1 "List Docker images" 2 "List Docker containers" 3 "Docker image delete" 4 "Docker container delete" 5 "Docker container run" q "Q for quit" 2>menu_choice.txt
+ dialog --title "Docker Control Panel" --menu "please choose action" 15 45 6 1 "List Docker images" 2 "List and manage Docker containers" 3 "Docker image delete" 4 "Docker container delete" 5 "Docker container run" q "Q for quit" 2>menu_choice.txt
 }
 
 funcDisplayMenu2 () {
@@ -56,27 +56,33 @@ case "`cat menu_choice.txt`" in
     sleep 5
     exec bash "$0";;
 
- 2) funcDisplayMenu2 "Listing Type" "Choose container listing type" 4 "All Container procesess" "Only active containers" "Stop running container" "restart stoped container" 2>menu_choice5.txt
+ 2) funcDisplayMenu2 "Listing Type" "Choose container listing type" 4 "All Container procesess" "Only active containers" "Stop running container" "Restart stoped container" 2>menu_choice5.txt
     case "`cat menu_choice5.txt`" in
     1) echo "Listing all Containers"
        echo "======================"
        docker ps -a
        sleep 5
        exec bash "$0";;
-    
+
     2) echo "Listing Containers"
        echo "=================="
        docker ps
        sleep 5
        exec bash "$0";;
-   
+
     3) funcInputBox "Container Stop" "Which container to stop (name/id)" 2>input_choice7.txt
-       docker stop "`cat input_choice7.txt`"
+       docker stop "`cat input_choice7.txt`" 2>/dev/null
+       if [ "$?" -eq "1" ];then
+        echo "You have typed wrong container. Please double check..."
+       fi
        sleep 2
        exec bash "$0";;
 
-    4) funcInputBox "Container Restart" "Which container to restart (menu/id)" 2>input_choice8.txt
-       docker restart "`cat input_choice8.txt`"
+    4) funcInputBox "Container Restart" "Which container to restart (name/id)" 2>input_choice8.txt
+       docker restart "`cat input_choice8.txt`" 2>/dev/null
+       if [ "$?" -eq "1" ];then
+        echo "You have typed wrong container. Please double check..."
+       fi
        sleep 2
        exec bash "$0";;
     esac;;
@@ -84,14 +90,20 @@ case "`cat menu_choice.txt`" in
  3) echo "Choose an image to delete..."
     funcInputBox "Delete Image" "Please type image to delete" "10" "20" 2>input_choice.txt
     funcMsgBox "IMAGE DELETION" "You are now deleting image from Docker please choose OK" "10" "20"
-    docker rmi "`cat input_choice.txt`"
+    docker rmi "`cat input_choice.txt`" 2>/dev/null
+    if [ "$?" -eq "1" ];then
+     echo "You have typed wrong image. Please double check..."
+    fi
     sleep 2
     exec bash "$0";;
 
  4) echo "Choose container to remove.."
     funcInputBox "Remove container" "Type container to remove" 2>input_choice.txt
     funcMsgBox "CONTAINER DELETION" "You are now deleting the container please choose OK" "10" "20"
-    docker rm "`cat input_choice.txt`"
+    docker rm "`cat input_choice.txt`" 2>/dev/null
+    if [ "$?" -eq "1" ];then
+     echo "You have typed wrong container or it is still running. Please double check..."
+    fi
     sleep 2
     exec bash "$0";;
 
@@ -111,7 +123,7 @@ case "`cat menu_choice.txt`" in
 
     2) echo "You have chosen no volume for the container";;
     esac
-    
+
     funcDisplayMenu2 "Container Port Options" "Please choose port redirection" 2 "With port redirect" "Without port redirect" 2>menu_choice4.txt
     case "`cat menu_choice4.txt`" in
     1) funcInputBox "Container Ports" "Please container and host port separate them with ":" " 2>input_choice3.txt
@@ -130,10 +142,14 @@ case "`cat menu_choice.txt`" in
     VAR6="--name `cat input_choice6.txt`"
 
     DOCKER="docker run $VAR1 $VAR2 $VAR3 $VAR6 $VAR5 $VAR4"
-    $DOCKER
+    $DOCKER 2>/dev/null
+    if [ "$?" != "0" ];then
+     echo "You have provided wrong value for one of the options. Please double check..."
+    fi
     sleep 5
     exec bash "$0";;
 
  q) echo "We are now quiting.."
     funcExit;;
 esac
+
