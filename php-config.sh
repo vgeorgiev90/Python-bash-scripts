@@ -1,11 +1,21 @@
 #!/bin/bash
 #install suphp and set up vhosts also install different php versions
 
-####functions###########
+
+##########functions start#############
+
+install () {
+
+yum install httpd-devel -y
+yum groupinstall 'Development Tools' -y
+yum update -y
+yum install epel-release -y
+yum install -y bzip2-devel curl-devel libjpeg-devel libpng-devel freetype-devel libc-client-devel libmcrypt-devel openssl openssl-devel libxml2 libxml2-devel sqlite-devel libc-client
+
+}
+
 
 suphp_check () {
-  yum install httpd-devel -y
-  yum groupinstall 'Development Tools' -y
   if [ ! -f "/etc/suphp.conf" ] ; then
     mkdir /tmp/suphp && cd /tmp/suphp
     wget http://suphp.org/download/suphp-0.7.2.tar.gz
@@ -104,10 +114,6 @@ EOF
 }
 
 php_install () {
-  
-  yum update -y
-  yum install epel-release -y
-  yum install -y bzip2-devel curl-devel libjpeg-devel libpng-devel freetype-devel libc-client-devel libmcrypt-devel openssl openssl-devel libxml2 libxml2-devel sqlite-devel libc-client
     echo "Which version of php to install: 5.5 , 5.6 , 7.0"
     read VER
     NATIVE=`php -v | head -1 | awk -F" " {'print $2'} | cut -d. -f 1,2`
@@ -159,6 +165,7 @@ start () {
   echo "--suphp-install  -  Install suPHP apache module"
   echo "--virt-host-add  -  Add new virtual host entry provide user and domain"
   echo "--php-install    -  Install one of the supported php versions"
+  echo "--install-deps   -  Install all of the dependancies          "
   echo "======================================================================="
 }
 
@@ -168,20 +175,25 @@ start () {
 if [ "$#" -eq '0' ]; then
   start
 elif [ "$1" == "--suphp-install" ]; then
-  suphp_check 
+  suphp_check
+  systemctl restart httpd
   echo 'Ready suPHP installed..'
 elif [ "$1" == "--virt-host-add" ]; then
   if [ "$#" -eq '1' ] && [ "$#" -eq '2' ] && [ "$#" -gt '3' ]; then
     echo 'Please use  --virtual-host-add username domain.com'
   else
     virtual_host_add $2 $3
+	echo "$3.conf is now created in /etc/httpd/conf.d/"
+	systemctl restart httpd
   fi
 elif [ "$1" == "--php-install" ]; then
   suphp_check
   php_install
   suphp_conf
+  systemctl restart httpd
+elif [ "$1" == "--install-deps" ]; then
+  install
+  echo "All deps are now installed"
 fi
-
-systemctl restart httpd
 
 echo "All finished..."
