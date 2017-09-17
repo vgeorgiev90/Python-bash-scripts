@@ -26,7 +26,7 @@ suphp_check () {
     autoreconf -if
     sleep 5
     
-    ./configure --prefix=/usr/ --sysconfdir=/etc/ --with-apr=/usr/bin/apr-1-config --with-apache-user=apache --with-setid-mode=owner --with-logfile=/var/log/httpd/suphp_log --with-apxs=/usr/bin/apxs
+    ./configure --prefix=/usr/ --sysconfdir=/etc/ --with-apr=/usr/bin/apr-1-config --with-apache-user=apache --with-setid-mode=paranoid --with-logfile=/var/log/httpd/suphp_log --with-apxs=/usr/bin/apxs
 
     make && make install
     cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.back
@@ -45,9 +45,9 @@ docroot=/
 ;Path to chroot() to before executing script
 ;chroot=/mychroot
 ; Security options
-allow_file_group_writeable=true
+allow_file_group_writeable=false
 allow_file_others_writeable=false
-allow_directory_group_writeable=true
+allow_directory_group_writeable=false
 allow_directory_others_writeable=false
 ;Check wheter script is within DOCUMENT_ROOT
 check_vhost_docroot=true
@@ -56,7 +56,7 @@ errors_to_browser=false
 ;PATH environment variable
 env_path=/bin:/usr/bin
 ;Umask to set, specify in octal notation
-umask=0077
+umask=0022
 ; Minimum UID
 min_uid=100
 ; Minimum GID
@@ -79,14 +79,16 @@ EOF
 }
 
 virtual_host_add () {
+  IP=`ifconfig | grep inet | tail -1 | awk -F" " '{print $2}'`
   if ! grep $1 /etc/passwd ; then
     echo "$1 account is not created please add it first"
   else
-    mkdir -p /home/$1/public_html
-    chown -R $1 /home/$1/
+    chmod 711 /home/$1
+	mkdir -p /home/$1/public_html && chmod 755 /home/$1/public_html
+    chown -R ${1}: /home/$1/
 
 cat > /etc/httpd/conf.d/virthost/$2.conf << EOF
-<VirtualHost test>
+<VirtualHost 1.1.1.1:80>
  DocumentRoot /home/www/public_html
  ServerName example.com
  ServerAdmin webmaster@example.com
@@ -97,18 +99,20 @@ cat > /etc/httpd/conf.d/virthost/$2.conf << EOF
  
  <IfModule mod_suphp.c>
  suPHP_Engine on
- <FilesMatch "\.php[345]?$">
- SetHandler x-httpd-suphp
- </FilesMatch>
- suPHP_AddHandler x-httpd-suphp
+
+ suPHP_AddHandler application/x-httpd-suphp
+ suPHP_UserGroup test test
  </IfModule>
 </VirtualHost>
 EOF
    sed -i "s/ServerName example.com/ServerName $2/g" /etc/httpd/conf.d/virthost/$2.conf
-   sed -i "s/test/$2/g" $2.conf2 > $2.conf
-   sed -i "s/\/home\/www\/public_html/home\/$1\/public_html/g" /etc/httpd/conf.d/virthost/$2.conf
+   sed -i "s/1.1.1.1:80/${IP}:80/g" /etc/httpd/conf.d/virthost/$2.conf
+   sed -i "s/\/home\/www\/public_html/\/home\/$1\/public_html/g" /etc/httpd/conf.d/virthost/$2.conf
    sed -i "s/suPHP_UserGroup test test/suPHP_UserGroup $1 $1/g" /etc/httpd/conf.d/virthost/$2.conf
 
+   
+   echo "Please choose php version to use with :"
+   echo 'AddHandler application/x-httpd-php$VER .php .php3 .php4 .php5 .php7'
    echo "Virtual Host $2 is now created.."
   fi
 }
