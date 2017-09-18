@@ -112,7 +112,7 @@ EOF
 
    
    echo "Please choose php version to use with :"
-   echo 'AddHandler application/x-httpd-php$VER .php .php3 .php4 .php5 .php7'
+   echo 'to change betwen php versions please use :AddHandler application/x-httpd-php$VER .php .php3 .php4 .php5 .php7 in your .htaccess file'
    echo "Virtual Host $2 is now created.."
   fi
 }
