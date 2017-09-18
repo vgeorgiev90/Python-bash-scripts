@@ -1,2 +1,1 @@
-# Docker
-My first Docker control panel script
+Differrent bash scripts
