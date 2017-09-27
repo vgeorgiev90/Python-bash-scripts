@@ -8,19 +8,6 @@
 mysql-install () {
   yum update -y
   yum install mariadb-server mariadb -y
-[root@test ~]# vi mysql-replication.sh
-[root@test ~]# clear
-[root@test ~]# cat mysql-replication.sh
-#!/bin/bash
-# script to set up mysql master master replication
-# for single database
-
-
-########## Functions ###################
-
-mysql-install () {
-  yum update -y
-  yum install mariadb-server mariadb -y
   systemctl start mariadb
   systemctl enable mariadb
   /usr/bin/mysqladmin -u root password 'viktor123'
