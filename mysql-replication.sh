@@ -57,8 +57,8 @@ EOF
     sed -i "${LINE}i log_bin = /var/log/mariadb/mariadb-bin.log" /etc/my.cnf
     sed -i "${LINE}i binlog_do_db = ${DB}" /etc/my.cnf
     systemctl restart mariadb
-    echo "create user 'replica'@'${HOST}' identified by 'parolata';" | mysql
-    echo "grant replication slave on *.* to 'replica'@'${HOST}';"
+    echo "create user 'replica'@'${HOST}' identified by 'GHR234d';" | mysql
+    echo "grant replication slave on *.* to 'replica'@'${HOST}' identified by 'GHR234d';"
     echo "These are master log file and log position needed to set up the slave part"
     echo "=========================================================================="
     echo "show master status;" | mysql | awk -F" " '{print $1}' | tail -1
@@ -76,7 +76,7 @@ mysql-slave-part () {
   echo "Master log position on the remote server: "
   read POS
   echo "slave stop;" | mysql
-  echo "change master to master_host = '${HOST}', master_user = 'replica', master_password = 'parolata', master_log_file = '${FILE}', master_log_pos = ${POS};" | mysql
+  echo "change master to master_host = '${HOST}', master_user = 'replica', master_password = 'GHR234d', master_log_file = '${FILE}', master_log_pos = ${POS};" | mysql
   echo "slave start;" | mysql
 }
 
