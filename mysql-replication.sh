@@ -60,7 +60,7 @@ echo "mysql.sh --slave-set   -  to set up slave part for both servers"
 
 ########### Script ################
 
-if [ $? -eq 0 ] || [ $? -gt 1 ]; then
+if [ $# -eq 0 ] || [ $# -gt 1 ]; then
   clear
   start
 elif [ $1 == '--install' ]; then
