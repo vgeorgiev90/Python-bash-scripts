@@ -21,24 +21,31 @@ cont-create () {
   ID=$(expr `echo $IP | awk -F"." '{print $1 + $2 + $3 + $4}'` + 1000)
   echo "Disk space soft/hard limits in format (6G:8G): "
   read DISK
-  echo "RAM : "
+  SYSMEM=`free -h | head -2 | tail -1 | awk -F" " '{print $2}'`
+  echo "RAM with suffix (256M,1G): "
+  echo "The system is with total memory: $SYSMEM"
+  echo "Please keep in mind when assigning"
   read RAM
-  SWAP=$(($RAM * 2))
+  SW=`echo $RAM | grep -o '[0-9]\+'`
+  SW2=`echo $RAM | grep -o '[a-zA-Z]\+'`
+  SWAP=$(($SW * 2))
 
-  vzctl create $ID --ostemplate centos-7.tar.gz --config basic > /dev/null
-  vzctl set $ID --hostname $HOST --save > /dev/null
-  vzctl set $ID --ipadd $IP --save > /dev/null
-  vzctl set $ID --nameserver 8.8.8.8 --save > /dev/null
-  vzctl set $ID --onboot yes --save > /dev/null
-  vzctl set $ID --iolimit 10 --save > /dev/null
+  vzctl create $ID --ostemplate centos-7 --config basic
+  vzctl set $ID --hostname $HOST --save
+  vzctl set $ID --ipadd $IP --save
+  vzctl set $ID --nameserver 8.8.8.8 --save
+  vzctl set $ID --onboot yes --save
+  vzctl set $ID --iolimit 10 --save
   vzctl set $ID --userpasswd root:${PASS}
-  vzctl set $ID --ram $RAM --swap $SWAP --save >/dev/null
-  vzctl set $ID --diskspace $DISK --save > /dev/null
-  vzctl start $ID > /dev/null
+  vzctl set $ID --ram $RAM --swap $SWAP${SW2} --save
+  vzctl set $ID --diskspace $DISK --save
+  vzctl start $ID
+  clear
   echo "Container is now created and running.."
   vzlist $ID
-  echo "==================================="
+  echo "============================"
   echo "Root Password : $PASS "
+  echo ""
 }
 
 
@@ -58,6 +65,9 @@ cont-delete () {
 
 cont-suspend () {
  clear
+ echo "Please make sure vzctp and vzrst modules are loaded"
+ echo "modprobe vzcpt; modprobe vzrst"
+ echo "==========================="
  echo "1 to Suspend container.. "
  echo "2 to Restore container.. "
  read CHOICE
@@ -85,12 +95,13 @@ esac
 load-check () {
 
   for CT in $(vzlist -H -o ctid); do
-    VAR=`vzctl exec $CT uptime | awk -F" " '{print $8, $9, $10}'`
-    if [ `echo $VAR | awk -F" " '{print $1}' | awk -F"." '{print $1}'` -gt 5 ]; then
+    VAR=`vzctl exec $CT uptime | awk -F" " '{print $10, $11, $12}'`
+    VAR2=`echo $VAR | awk -F" " '{print $1}' | awk -F"." '{print $1}'`
+    if [ $VAR2 -gt 5 ]; then
       tput setaf 1; echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')";echo $VAR ; tput sgr0
       echo "========================="
     else
-      echp "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"
+      echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"
       echo $VAR
       echo "========================="
     fi
@@ -101,8 +112,8 @@ load-check () {
 disk-check () {
 
   for CT in $(vzlist -H -o ctid); do
-    VAR=`vzctl exec $CT df -h | head -2 | tail -1 | awk -F" " '{print $5}' | fold -w 2 | head -1`
-    if [ $VAR -gt 85 ]; then
+    VAR=`vzctl exec $CT df -h | head -2 | tail -1 | awk -F" " '{print $5}' | grep -o '[0-9]\+'`
+    if [ $VAR -gt 90 ]; then
       tput setaf 1; echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"; vzctl exec $CT df -h | head -2 | tail -1; tput sgr0
       echo "=========================="
     else
@@ -116,11 +127,11 @@ disk-check () {
 memory-check () {
 
   for CT in $(vzlist -H -o ctid); do
-    USAGE=`vzctl exec $CT free -h | head -2 | tail -1 | awk -F" " '{print $3}'`
-    FREE=`vzctl exec $CT free -h | head -2 | tail -1 | awk -F" " '{print $2}'`
-    PERC=$((100*`echo $USAGE | sed 's/[a-zA-Z$]//g'`/`echo $FREE | sed 's/[a-zA-Z$]//g'`))
+    USAGE=`vzctl exec $CT free -m | head -2 | tail -1 | awk -F" " '{print $3}'`
+    FREE=`vzctl exec $CT free -m | head -2 | tail -1 | awk -F" " '{print $2}'`
+    PERC=$(($USAGE*100/$FREE))
     if [ $PERC -gt 90 ]; then
-      tput setaf1; echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"; vzctl exec $CT free -h | head -2 | tail -1; tput sgr0
+      tput setaf 1; echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"; vzctl exec $CT free -h | head -2 | tail -1; tput sgr0
       echo "=========================="
     else
       echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"
@@ -132,7 +143,7 @@ done
 
 trafic-check () {
 
-  for CT in $(vzlist -H -0 ctid); do
+  for CT in $(vzlist -H -o ctid); do
     echo "==========================="
     echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"
     TRIN=`vzctl exec $CT cat /proc/net/dev | grep venet0: | awk -F" " '{print $2}'`
@@ -168,6 +179,7 @@ elif [ $1 == "--cont-delete" ]; then
 elif [ $1 == "--suspend" ]; then
   cont-suspend
 elif [ $1 == "--monitor" ]; then
+  clear
   echo "What do you want to check"
   echo "1) load average"
   echo "2) disk usage  "
@@ -186,4 +198,3 @@ else
   echo "Please choose valid option"
   start
 fi
-
