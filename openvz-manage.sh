@@ -30,6 +30,7 @@ cont-create () {
   vzctl set $ID --ipadd $IP --save > /dev/null
   vzctl set $ID --nameserver 8.8.8.8 --save > /dev/null
   vzctl set $ID --onboot yes --save > /dev/null
+  vzctl set $ID --iolimit 10 --save > /dev/null
   vzctl set $ID --userpasswd root:${PASS}
   vzctl set $ID --ram $RAM --swap $SWAP --save >/dev/null
   vzctl set $ID --diskspace $DISK --save > /dev/null
@@ -141,4 +142,48 @@ trafic-check () {
     echo "OUT: $((($TROUT/1000)/1000)) MB"
   done
 }
+
+
+start () {
+  clear
+  echo "  OpenVZ control script usage:  "
+  echo "================================"
+  echo "--cont-create - Create container"
+  echo "--cont-delete - Delete container"
+  echo "--monitor - Monitor cont usage  "
+  echo "--suspend - Suspend/restore cont"
+  echo "================================"
+
+}
+
+########### Script start #############
+
+
+if [ $# -eq 0 ] || [ $# -gt 1 ]; then
+  start
+elif [ $1 == "--cont-create" ]; then
+  cont-create
+elif [ $1 == "--cont-delete" ]; then
+  cont-delete
+elif [ $1 == "--suspend" ]; then
+  cont-suspend
+elif [ $1 == "--monitor" ]; then
+  echo "What do you want to check"
+  echo "1) load average"
+  echo "2) disk usage  "
+  echo "3) bandwith usage"
+  echo "4) memory usage  "
+  read CHOICE2
+
+  case $CHOICE2 in
+  1) load-check ;;
+  2) disk-check ;;
+  3) trafic-check ;;
+  4) memory-check ;;
+  *) echo "Please choose valid option" ;;
+  esac
+else
+  echo "Please choose valid option"
+  start
+fi
 
