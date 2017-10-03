@@ -147,10 +147,12 @@ load-check () {
     if [ $VAR2 -gt 5 ]; then
       tput setaf 1; echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')";echo $VAR ; tput sgr0
       echo "========================="
+      echp ""
     else
       echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"
       echo $VAR
       echo "========================="
+      echo ""
     fi
   done
 }
@@ -163,10 +165,12 @@ disk-check () {
     if [ $VAR -gt 90 ]; then
       tput setaf 1; echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"; vzctl exec $CT df -h | head -2 | tail -1; tput sgr0
       echo "=========================="
+      echo ""
     else
       echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"
       vzctl exec $CT df -h | head -2 | tail -1
       echo "=========================="
+      echo ""
     fi
   done
 }
@@ -178,12 +182,14 @@ memory-check () {
     FREE=`vzctl exec $CT free -m | head -2 | tail -1 | awk -F" " '{print $2}'`
     PERC=$(($USAGE*100/$FREE))
     if [ $PERC -gt 90 ]; then
-      tput setaf 1; echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"; vzctl exec $CT free -h | head -2 | tail -1; tput sgr0
+      tput setaf 1; echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"; vzctl exec $CT free -h | head -2; tput sgr0
       echo "=========================="
+      echo ""
     else
       echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"
-      vzctl exec $CT free -h | head -2 | tail -1
+      vzctl exec $CT free -h | head -2
       echo "=========================="
+      echo ""
     fi
 done
 }
@@ -191,6 +197,7 @@ done
 trafic-check () {
 
   for CT in $(vzlist -H -o ctid); do
+    echo ""
     echo "==========================="
     echo "$CT $(vzlist -H $CT | awk -F" " '{print $5}')"
     TRIN=`vzctl exec $CT cat /proc/net/dev | grep venet0: | awk -F" " '{print $2}'`
@@ -206,8 +213,8 @@ start () {
   clear
   echo "  OpenVZ control script usage:  "
   echo "================================"
-  echo "--cont-create - Create container"
-  echo "--cont-delete - Delete container"
+  echo "--create - Create container"
+  echo "--delete - Delete container"
   echo "--monitor - Monitor cont usage  "
   echo "--suspend - Suspend/restore cont"
   echo "--traffic-ctl - to set bd limits"
@@ -220,9 +227,9 @@ start () {
 
 if [ $# -eq 0 ] || [ $# -gt 1 ]; then
   start
-elif [ $1 == "--cont-create" ]; then
+elif [ $1 == "--create" ]; then
   cont-create
-elif [ $1 == "--cont-delete" ]; then
+elif [ $1 == "--delete" ]; then
   cont-delete
 elif [ $1 == "--suspend" ]; then
   cont-suspend
