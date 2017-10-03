@@ -8,6 +8,53 @@
 
 ####### Container Managment #######
 
+trafic-control () {
+
+  in-trafic () {
+
+  DEV=venet0
+  tc qdisc del dev $DEV root
+  tc qdisc add dev $DEV root handle 1: cbq avpkt 1000 bandwidth 100mbit
+  tc class add dev $DEV parent 1: classid 1:1 cbq rate 256kbit allot 1500 prio 5 bounded isolated
+  tc qdisc add dev $DEV parent 1:1 sfq perturb 10
+
+}
+
+out-trafic () {
+
+  DEV2=eth0
+  tc qdisc del dev $DEV2 root
+  tc qdisc add dev $DEV2 root handle 1: cbq avpkt 1000 bandwidth 100mbit
+  tc class add dev $DEV2 parent 1: classid 1:1 cbq rate 256kbit allot 1500 prio 5 bounded isolated
+  tc qdisc add dev $DEV2 parent 1:1 sfq perturb 10
+
+}
+
+ddos-limit () {
+  DEV=eth0
+  iptables -I FORWARD 1 -o $DEV -s $1 -m limit --limit 200/sec -j ACCEPT
+  iptables -I FORWARD 2 -o $DEV -s $1 -j DROP
+}
+
+
+if [ $1 == "--ddos" ]; then
+  ddos-limit
+else
+  in-trafic
+  out-trafic
+fi
+
+IP=$1
+
+if [ ! -z $IP ]; then
+  tc filter add dev venet0 parent 1: protocol ip prio 16 u32 match ip dst "$IP" flowid 1:10
+  tc filter add dev eth0 parent 1: protocol ip prio 16 u32 match ip src "$IP" flowid 1:20
+  echo "Bandwith filters are now applied.."
+fi
+
+
+}
+
 cont-create () {
   clear
   PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
@@ -163,6 +210,7 @@ start () {
   echo "--cont-delete - Delete container"
   echo "--monitor - Monitor cont usage  "
   echo "--suspend - Suspend/restore cont"
+  echo "--traffic-ctl - to set bd limits"
   echo "================================"
 
 }
@@ -178,6 +226,19 @@ elif [ $1 == "--cont-delete" ]; then
   cont-delete
 elif [ $1 == "--suspend" ]; then
   cont-suspend
+elif [ $1 == "--traffic-ctl" ]; then
+  echo "Trafic control script"
+  echo "1) to limit packet per second for containers (to avoid ddos from cont) "
+  echo "2) to set the filters per IP"
+  read CH
+  case $CH in
+  1) trafic-control --ddos ;;
+  2) echo "IP of the container: "
+     read ADDRESS
+     trafic-control $ADDRESS
+     ;;
+  *) echo "Only valid options please..." ;;
+  esac
 elif [ $1 == "--monitor" ]; then
   clear
   echo "What do you want to check"
