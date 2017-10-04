@@ -69,13 +69,15 @@ cont-create () {
   echo "Disk space soft/hard limits in format (6G:8G): "
   read DISK
   SYSMEM=`free -h | head -2 | tail -1 | awk -F" " '{print $2}'`
-  echo "RAM with suffix (256M,1G): "
+  echo "RAM in megabytes (256M): "
   echo "The system is with total memory: $SYSMEM"
   echo "Please keep in mind when assigning"
   read RAM
   SW=`echo $RAM | grep -o '[0-9]\+'`
   SW2=`echo $RAM | grep -o '[a-zA-Z]\+'`
   SWAP=$(($SW * 2))
+  PRP=$(($SW-($SW/4)))
+  PRPs=$(($SW/2))
 
   vzctl create $ID --ostemplate centos-7 --config basic
   vzctl set $ID --hostname $HOST --save
@@ -83,6 +85,9 @@ cont-create () {
   vzctl set $ID --nameserver 8.8.8.8 --save
   vzctl set $ID --onboot yes --save
   vzctl set $ID --iolimit 10 --save
+  vzctl set $ID --vmguarpages $PRPs${SW2} --save
+  vzctl set $ID --oomguarpages $PRPs${SW2} --save
+  vzctl set $ID --privvmpages $PRPs${SW2}:$PRP${SW2} --save
   vzctl set $ID --userpasswd root:${PASS}
   vzctl set $ID --ram $RAM --swap $SWAP${SW2} --save
   vzctl set $ID --diskspace $DISK --save
