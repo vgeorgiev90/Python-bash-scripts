@@ -25,6 +25,8 @@ symbolic-links=0
 # If you need to run mysqld under a different user or group,
 # customize your systemd unit file for mariadb according to the
 
+innodb_buffer_pool_size=32000000
+
 [mysqld_safe]
 log-error=/var/log/mariadb/mariadb.log
 pid-file=/var/run/mariadb/mariadb.pid
