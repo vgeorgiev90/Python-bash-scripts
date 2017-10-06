@@ -38,7 +38,7 @@ ddos-limit () {
 
 
 if [ $1 == "--ddos" ]; then
-  ddos-limit
+  ddos-limit $2
 else
   in-trafic
   out-trafic
@@ -47,8 +47,8 @@ fi
 IP=$1
 
 if [ ! -z $IP ]; then
-  tc filter add dev venet0 parent 1: protocol ip prio 16 u32 match ip dst "$IP" flowid 1:10
-  tc filter add dev eth0 parent 1: protocol ip prio 16 u32 match ip src "$IP" flowid 1:20
+  tc filter add dev venet0 parent 1: protocol ip prio 16 u32 match ip dst "$IP" flowid 1:1
+  tc filter add dev eth0 parent 1: protocol ip prio 16 u32 match ip src "$IP" flowid 1:1
   echo "Bandwith filters are now applied.."
 fi
 
@@ -244,7 +244,10 @@ elif [ $1 == "--traffic-ctl" ]; then
   echo "2) to set the filters per IP"
   read CH
   case $CH in
-  1) trafic-control --ddos ;;
+  1) echo "IP of the container: "
+     read ADDRESS
+     trafic-control --ddos $ADDRESS
+     ;;
   2) echo "IP of the container: "
      read ADDRESS
      trafic-control $ADDRESS
@@ -269,5 +272,6 @@ elif [ $1 == "--monitor" ]; then
   esac
 else
   echo "Please choose valid option"
+  sleep 2; clear
   start
 fi
