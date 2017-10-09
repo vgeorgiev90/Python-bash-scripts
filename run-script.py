@@ -26,19 +26,6 @@ for i in d5:
         ip = d5[i]['ip']
         print(parola)
         print(ip)
-        break
-    elif var == A:
-        parola = d5[i]['pass']
-        ip = d5[i]['ip']
-        print(parola)
-        print(ip)
-        break
-    elif var == A:
-        parola = d5[i]['pass']
-        ip = d5[i]['ip']
-        print(parola)
-        print(ip)
-        break
 
 
 ########### Rsync the script to be executed ###########
