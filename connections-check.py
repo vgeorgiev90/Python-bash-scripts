@@ -11,7 +11,6 @@ output = command.stdout.read()
 resultsrc = []
 resultdst = []
 
-######### Main Function ##########
 
 def main( int ):
     try:
@@ -28,20 +27,21 @@ def main( int ):
                 count = collections.Counter(resultsrc)
                 count2 = collections.Counter(resultdst)
 
-        print("IP's connecting from: ")
-        print("=======================")
+        print("IP's connecting from (source): ")
+        print("=========================================")
         c1 = 0
         for i in count:
             string = str(count)
             SRC = string.split(",")[c1]
             ipsrc = SRC.split("'")[1]
             cosrc = SRC.split(":")[1]
-            print(cosrc.split("}")[0] + "   ---   " + ipsrc)
+            print(cosrc.split("}")[0] + " connections" + "   <---   " + ipsrc)
+            print("")
             print("")
             c1 += 1
 
-        print("IP connecting to: ")
-        print("=================")
+        print("IP's connecting to the server: ")
+        print("=========================================")
 
         c2 = 0
         for y in count2:
@@ -49,7 +49,7 @@ def main( int ):
             DST = string2.split(",")[c2]
             ipdst = DST.split("'")[1]
             codst = DST.split(":")[1]
-            print(codst.split("}")[0] + "   ---   " + ipdst)
+            print(codst.split("}")[0] + " connections" + "   --->   " + ipdst)
             print("")
             c2 += 1
 
@@ -68,3 +68,4 @@ except IndexError:
     print("=========================================================")
     print("Usage: ")
     print("connections.py -p80 or -p443")
+
