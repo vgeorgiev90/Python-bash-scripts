@@ -3,6 +3,8 @@
 import collections
 import subprocess
 import sys
+import itertools
+
 
 command = subprocess.Popen(["netstat", "-tanp"], stdout=subprocess.PIPE)
 
@@ -30,7 +32,8 @@ def main( int ):
         print("IP's connecting from (source): ")
         print("=========================================")
         c1 = 0
-        for i in count:
+        sls = itertools.islice(count, 10)
+        for i in sls:
             string = str(count)
             SRC = string.split(",")[c1]
             ipsrc = SRC.split("'")[1]
@@ -68,4 +71,3 @@ except IndexError:
     print("=========================================================")
     print("Usage: ")
     print("connections.py -p80 or -p443")
-
