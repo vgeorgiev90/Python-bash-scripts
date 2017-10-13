@@ -1,1 +1,1 @@
-Differrent bash scripts
+Differrent bash and python scripts
