@@ -1,27 +1,49 @@
 #!/usr/bin/python
+#Database connection and queries
 
 
+import getpass
 import time
 import MySQLdb
-import gc
 import os
+import sys
 
-gc.collect()
 
-###### Variables for db connection #######
+###### DB variables ##########
 
-username = "root"
-password = "viktor123"
-database = "viktor"
+username = "bazata"
+password = "*75ED6F9E59DDB3699C23A492B374A5D0FE12ED33"
+database = "know"
 table = "comands"
 
-######## DB connection ###########
-
-con = MySQLdb.connect(host="localhost", user=username, passwd=password, db=database)
-cur = con.cursor()
 
 
 ######### Functions ###########
+
+def install():
+    try:
+        print("The script will now install the database and user for it")
+        print("Provide your mysql root password..")
+        PASS = getpass.getpass()
+        connect = MySQLdb.connect(host='localhost', user='root', passwd=PASS)
+        cursor = connect.cursor()
+
+        sql = "create database know;"
+        sql2 = "create table know.comands (id int not null auto_increment, name varchar(30), command varchar(300), comment varchar(300), primary key (id));"
+        sql3 = "create user 'bazata'@'localhost' identified by password '*75ED6F9E59DDB3699C23A492B374A5D0FE12ED33';"
+        sql4 = "grant all privileges on know.* to 'bazata'@'localhost' identified by '*75ED6F9E59DDB3699C23A492B374A5D0FE12ED33';"
+
+        cursor.execute(sql)
+        cursor.execute(sql2)
+        cursor.execute(sql3)
+        cursor.execute(sql4)
+        connect.commit()
+
+        cursor.close()
+        connect.close()
+    except:
+        print("Error has occured check if the database and user already exists..")
+
 
 def main():
     try:
@@ -40,6 +62,8 @@ def main():
             remove()
         else:
             print("Nothing....")
+            cur.close()
+            con.close()
     except:
         print("Goodbye....")
         cur.close()
@@ -50,6 +74,8 @@ def read():
         while (1):
             ID = raw_input("What to fetch: ")
             if ID == 'quit':
+                cur.close()
+                con.close()
                 break
             elif ID == 'clear':
                 os.system('clear')
@@ -67,6 +93,9 @@ def read():
                     print(b[0].split("(")[1] + " | " + b[1] + " | " + b[2] + " | " + b[3].split(")")[0])
     except:
         print("Nothing to show")
+        cur.close()
+        con.close()
+        break
 
 def insert():
 
@@ -83,6 +112,9 @@ def insert():
         main()
     except:
         print("Something is wrong with the query...")
+        cur.close()
+        con.close()
+        break
 
 def remove():
 
@@ -96,10 +128,26 @@ def remove():
         main()
     except:
         print("Error please try again or check if there is such record...")
+        cur.close()
+        con.close()
+        break
 
 ######### Script start ###########
 
-main()
 
-cur.close()
-con.close()
+
+if len(sys.argv) > 1:
+    var = sys.argv[1]
+    if var == 'install':
+        install()
+    else:
+        print("This script takes as argument only install")
+else:
+    try:
+        ########## DB connection ##########
+
+        con = MySQLdb.connect(host="localhost", user=username, passwd=password, db=database)
+        cur = con.cursor()
+        main()
+    except:
+        print("Please check if database and user are created..")
