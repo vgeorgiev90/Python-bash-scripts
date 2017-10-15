@@ -95,7 +95,6 @@ def read():
         print("Nothing to show")
         cur.close()
         con.close()
-        break
 
 def insert():
 
@@ -114,7 +113,6 @@ def insert():
         print("Something is wrong with the query...")
         cur.close()
         con.close()
-        break
 
 def remove():
 
