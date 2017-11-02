@@ -128,7 +128,6 @@ def remove():
         print("Error please try again or check if there is such record...")
         cur.close()
         con.close()
-        break
 
 ######### Script start ###########
 
