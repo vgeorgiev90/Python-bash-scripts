@@ -127,8 +127,8 @@ php_install () {
       mkdir /tmp/php
       cd /tmp/php
 
-      wget --user viktor --password viktor123 http://78.142.63.159/files/php-$VER.tar.bz2
-      wget --user viktor --password viktor123 http://78.142.63.159/files/phpconf.txt
+      wget --user viktor --password  http://78.142.63.159/files/php-$VER.tar.bz2
+      wget --user viktor --password  http://78.142.63.159/files/phpconf.txt
       
       sed -i "s/--prefix=\/usr\/local\/php/--prefix=\/usr\/local\/php${VER}\//g" /tmp/php/phpconf.txt
       sed -i "s/--exec-prefix=\/usr\/local\/php/--exec-prefix=\/usr\/local\/php${VER}\//g" /tmp/php/phpconf.txt
