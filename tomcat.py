@@ -1,5 +1,6 @@
 #!/usr/bin/python
-#java8,tomcat8 set up with httpd virtual hosts for multi user system
+#tomcat8 with java8 set up for multi user systems
+#included apache for vhost proxy
 
 import sys
 import subprocess
@@ -24,6 +25,7 @@ def pw_gen(size = 12, chars=string.ascii_letters + string.digits + string.punctu
 
 
 def multi_user_install(user):
+##### Instance Variables #######
     port = random.randint(8000,9000)
     parola = pw_gen(20)
     sslport = port + 10
@@ -32,7 +34,8 @@ def multi_user_install(user):
     null = open('/dev/null','w')
     home = "/opt/tomcat-" + user
     own = user + ':'
-#### Make sure that there are no port conflicts ##
+    shutdown_pass = '<user username="%s" password="%s" roles="admin-gui,manager-gui"/>' % (user,parola)
+#### Make sure that there are no port conflicts ####
     rep = 'port="8080"'
     ssl = 'redirectPort="8443"'
     shp = 'port="8005"'
@@ -77,7 +80,15 @@ def multi_user_install(user):
     with open(home + "/conf/server.xml", 'w') as file:
         file.write(filedata)
     file.close()
-    data = "Instance created with home directory: %s \n \n User: %s\n Port: %s\n SSlPort: %s\n SHUTPort: %s\n AJPport: %s \n SHUTpass: %s\n \nJava memory options by default: \n Xms=128m\n Xmx=512m\n PermSize=32m\n MaxPermSize=64m\n -server\n -XX:+UseParallelGC \n -Dfile.encoding=utf-8 \n If you want to increase or change modify the service file \n /usr/lib/systemd/system/tomcat-%s.service file" % (home,user,port,sslport,shport,ajport,parola,user)
+    with open(home + '/conf/tomcat-users.xml','r') as file:
+        cont = file.readlines()
+    file.close()
+    cont.insert(43,shutdown_pass)
+    with open(home + '/conf/tomcat-users.xml','w') as file:
+        for line in cont:
+            file.write(line)
+    file.close()
+    data = "Instance created with home directory: %s \n \n User: %s\n Port: %s\n SSlPort: %s\n SHUTPort: %s\n AJPport: %s \n SHUTpass: %s\n AdminGUI user: %s \n AdminGUI pass: %s \n \nJava memory options by default: \n Xms=128m\n Xmx=512m\n PermSize=32m\n MaxPermSize=64m\n -server\n -XX:+UseParallelGC \n -Dfile.encoding=utf-8 \n If you want to increase or change modify the service file \n /usr/lib/systemd/system/tomcat-%s.service\n" % (home,user,port,sslport,shport,ajport,parola,user,parola,user)
     with open(home + "/tomi.info", 'w') as temp:
         temp.write(data)
     temp.close()
@@ -110,7 +121,7 @@ def make_user_service(user,home):
     service = '/usr/lib/systemd/system/tomcat-' + user + ".service"
     with open(service,'w') as file:
         file.write(content)
-
+    file.close()
     subprocess.call(["systemctl","enable","tomcat-" + user])
     subprocess.call(["systemctl","start","tomcat-" + user])
     print "Systemd service file created for tomcat-%s.service" % user
