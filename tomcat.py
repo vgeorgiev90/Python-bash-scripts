@@ -1,10 +1,10 @@
 #!/usr/bin/python
-#tomcat 8 and java 8 management and setup
+#java8,tomcat8 set up with httpd virtual hosts for multi user system
 
 import sys
 import subprocess
 import random
-
+import string
 
 ####### Functions ########
 
@@ -19,8 +19,13 @@ def base_install():
     subprocess.call(["systemctl","enable","httpd"])
 
 
+def pw_gen(size = 12, chars=string.ascii_letters + string.digits + string.punctuation):
+    return ''.join(random.choice(chars) for _ in range(size))
+
+
 def multi_user_install(user):
     port = random.randint(8000,9000)
+    parola = pw_gen(20)
     sslport = port + 10
     shport = port + 20
     ajport = port + 30
@@ -33,16 +38,17 @@ def multi_user_install(user):
     shp = 'port="8005"'
     ajp = 'port="8009"'
     tls = 'port="8443"'
+    shut = 'shutdown="SHUTDOWN">'
     rep2 = 'port="%s"' % port
     ssl2 = 'redirectPort="%s"' % sslport
     shp2 = 'port="%s"' % shport
     ajp2 = 'port="%s"' % ajport
     tls2 = 'port="%s"' % sslport
-
+    shut2 = 'shutdown="%s">' % parola
 ########## Deploy instance, create user, change owner
 
     subprocess.call(["cp","-rf","/opt/tomcat-base",home])
-    subprocess.call(["useradd","-s","/sbin/nologin","-d",home,user])
+    subprocess.call(["useradd","-s","/sbin/nologin","-d",home,user],stdout=null,stderr=null)
     subprocess.call(["chown","-R",own,home])
 
     dirs = subprocess.check_output(["find",home,"-type","d"])
@@ -66,10 +72,17 @@ def multi_user_install(user):
     filedata = filedata.replace(shp,shp2)
     filedata = filedata.replace(ajp,ajp2)
     filedata = filedata.replace(tls,tls2)
+    filedata = filedata.replace(shut,shut2)
+    file.close()
     with open(home + "/conf/server.xml", 'w') as file:
         file.write(filedata)
+    file.close()
+    data = "Instance created with home directory: %s \n \n User: %s\n Port: %s\n SSlPort: %s\n SHUTPort: %s\n AJPport: %s \n SHUTpass: %s\n \nJava memory options by default: \n Xms=128m\n Xmx=512m\n PermSize=32m\n MaxPermSize=64m\n -server\n -XX:+UseParallelGC \n -Dfile.encoding=utf-8 \n If you want to increase or change modify the service file \n /usr/lib/systemd/system/tomcat-%s.service file" % (home,user,port,sslport,shport,ajport,parola,user)
+    with open(home + "/tomi.info", 'w') as temp:
+        temp.write(data)
+    temp.close()
     print "Instance is created with home directory: %s" % home
-    print "User: %s\n Port: %s\n SSlPort: %s\n SHUTPort: %s\n AJPport: %s" % (user,port,sslport,shport,ajport)
+    print "For info on ports check %s/tomi.info" % home
     return user,home
 
 
@@ -101,7 +114,6 @@ def make_user_service(user,home):
     subprocess.call(["systemctl","enable","tomcat-" + user])
     subprocess.call(["systemctl","start","tomcat-" + user])
     print "Systemd service file created for tomcat-%s.service" % user
-    print "Java memory options by default: \n Xms=128m\n Xmx=512m\n PermSize=32m\n MaxPermSize=64m\n If you want to increase them change /usr/lib/systemd/system/tomcat-%s.service file" % user
 
 
 def httpd_proxy(domain,install_port):
@@ -118,6 +130,7 @@ def httpd_proxy(domain,install_port):
 
     with open(proxy_file,'w') as prfile:
         prfile.write(proxy_set)
+    prfile.close()
     subprocess.call(["systemctl","restart","httpd"])
     print "Proxy Virtual Host is created for the domain %s \n if you want to point it to spesific context on this instance \n modify %s \n as follows: \n ProxyPass / http://127.0.0.1:your-port/your-context/" % (domain,proxy_file)
 
