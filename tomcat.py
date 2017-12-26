@@ -76,22 +76,17 @@ def multi_user_install(user):
     filedata = filedata.replace(ajp,ajp2)
     filedata = filedata.replace(tls,tls2)
     filedata = filedata.replace(shut,shut2)
-    file.close()
     with open(home + "/conf/server.xml", 'w') as file:
         file.write(filedata)
-    file.close()
     with open(home + '/conf/tomcat-users.xml','r') as file:
         cont = file.readlines()
-    file.close()
     cont.insert(43,shutdown_pass)
     with open(home + '/conf/tomcat-users.xml','w') as file:
         for line in cont:
             file.write(line)
-    file.close()
     data = "Instance created with home directory: %s \n \n User: %s\n Port: %s\n SSlPort: %s\n SHUTPort: %s\n AJPport: %s \n SHUTpass: %s\n AdminGUI user: %s \n AdminGUI pass: %s \n \nJava memory options by default: \n Xms=128m\n Xmx=512m\n PermSize=32m\n MaxPermSize=64m\n -server\n -XX:+UseParallelGC \n -Dfile.encoding=utf-8 \n If you want to increase or change modify the service file \n /usr/lib/systemd/system/tomcat-%s.service\n" % (home,user,port,sslport,shport,ajport,parola,user,parola,user)
     with open(home + "/tomi.info", 'w') as temp:
         temp.write(data)
-    temp.close()
     print "Instance is created with home directory: %s" % home
     print "For info on ports check %s/tomi.info" % home
     return user,home
@@ -121,7 +116,6 @@ def make_user_service(user,home):
     service = '/usr/lib/systemd/system/tomcat-' + user + ".service"
     with open(service,'w') as file:
         file.write(content)
-    file.close()
     subprocess.call(["systemctl","enable","tomcat-" + user])
     subprocess.call(["systemctl","start","tomcat-" + user])
     print "Systemd service file created for tomcat-%s.service" % user
@@ -141,7 +135,6 @@ def httpd_proxy(domain,install_port):
 
     with open(proxy_file,'w') as prfile:
         prfile.write(proxy_set)
-    prfile.close()
     subprocess.call(["systemctl","restart","httpd"])
     print "Proxy Virtual Host is created for the domain %s \n if you want to point it to spesific context on this instance \n modify %s \n as follows: \n ProxyPass / http://127.0.0.1:your-port/your-context/" % (domain,proxy_file)
 
