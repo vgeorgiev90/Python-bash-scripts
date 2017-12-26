@@ -72,10 +72,12 @@ try:
         total = code_check(code)
         pos = encode(parola,total)
         print pos
-    if arg == '--decode':
+    elif arg == '--decode':
         parola,code = init()
         total = code_check(code)
         pas = decode(parola,total)
         print pas
+    else:
+        print "Usage:\n===================\n./hide.py --encode\n./hide.py --decode\n"
 except IndexError:
     print "Usage:\n===================\n./hide.py --encode\n./hide.py --decode\n"
