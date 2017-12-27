@@ -54,20 +54,26 @@ def decode(enc_pass,code):
     dec_pass = ''.join(enc)
     return dec_pass
 
-def file_check(file,mode,code):
+def file_code(file,mode,code):   ## Code can be either 'encode' or 'decode' 
     if mode == 'encode':
         with open(file,'r') as f:
             cont = f.read()
         content = cont.replace(' ','---')
         content2 = content.replace('\n','___')
-        content3 = encode(content2,code)
+        new_data = content2
+        for i in range(1,10):    ## For stronger encoding use more iterations
+            old_data = encode(new_data,code)
+            new_data = old_data
         with open(file,'w') as f:
-            f.write(content3)
+            f.write(new_data)
     elif mode == 'decode':
         with open(file,'r') as f:
             cont = f.read()
-        content = decode(cont,code)
-        content2 = content.replace('---',' ')
+        new_data = cont
+        for i in range(1,10):    ## Also change them for decoding the file
+            old_data = decode(new_data,code)
+            new_data = old_data
+        content2 = new_data.replace('---',' ')
         content3 = content2.replace('___','\n')
         with open(file,'w') as f:
             f.write(content3)
