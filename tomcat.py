@@ -1,6 +1,5 @@
 #!/usr/bin/python
-##tomcat 8 and java 8 install and managment for multi user systems
-##Apache proxy virtual hosts creation for tomcat
+##tomcat8 and java8 management and setup
 
 import subprocess
 import random
@@ -25,7 +24,7 @@ def pw_gen(size = 12, chars=string.ascii_letters + string.digits):
 
 def multi_user_install(user):
 
-##### Instance Variables #######
+###### Instance Variables #######
     port = random.randint(8000,9000)
     parola = pw_gen(20)
     sslport = port + 10
@@ -35,7 +34,7 @@ def multi_user_install(user):
     home = "/opt/tomcat-" + user
     own = user + ':'
     shutdown_pass = '<user username="%s" password="%s" roles="admin-gui,manager-gui"/>' % (user,parola)
-#### Make sure that there are no port conflicts ##
+###### Make sure that there are no port conflicts ######
     rep = 'port="8080"'
     ssl = 'redirectPort="8443"'
     shp = 'port="8005"'
@@ -78,18 +77,15 @@ def multi_user_install(user):
     filedata = filedata.replace(shut,shut2)
     with open(home + "/conf/server.xml", 'w') as file:
         file.write(filedata)
-    file.close()
     with open(home + '/conf/tomcat-users.xml','r') as file:
         cont = file.readlines()
     cont.insert(43,shutdown_pass)
     with open(home + '/conf/tomcat-users.xml','w') as file:
         for line in cont:
             file.write(line)
-
     data = "Instance created with home directory: %s \n \n User: %s\n Port: %s\n SSlPort: %s\n SHUTPort: %s\n AJPport: %s \n SHUTpass: %s\n AdminGUI user: %s \n AdminGUI pass: %s \n \nJava memory options by default: \n Xms=128m\n Xmx=512m\n PermSize=32m\n MaxPermSize=64m\n -server\n -XX:+UseParallelGC \n -Dfile.encoding=utf-8 \n If you want to increase or change modify the service file \n /usr/lib/systemd/system/tomcat-%s.service\n" % (home,user,port,sslport,shport,ajport,parola,user,parola,user)
     with open(home + "/tomi.info", 'w') as temp:
         temp.write(data)
-    temp.close()
     print "Instance is created with home directory: %s" % home
     print "For info on ports check %s/tomi.info" % home
     return user,home
@@ -119,7 +115,6 @@ def make_user_service(user,home):
     service = '/usr/lib/systemd/system/tomcat-' + user + ".service"
     with open(service,'w') as file:
         file.write(content)
-    file.close()
     subprocess.call(["systemctl","enable","tomcat-" + user])
     subprocess.call(["systemctl","start","tomcat-" + user])
     print "Systemd service file created for tomcat-%s.service" % user
@@ -139,17 +134,16 @@ def httpd_proxy(domain,install_port):
 
     with open(proxy_file,'w') as prfile:
         prfile.write(proxy_set)
-    prfile.close()
     subprocess.call(["systemctl","restart","httpd"])
     print "Proxy Virtual Host is created for the domain %s \n if you want to point it to spesific context on this instance \n modify %s \n as follows: \n ProxyPass / http://127.0.0.1:your-port/your-context/" % (domain,proxy_file)
 
 
-######### Argument Parser Declare ##############
+#########  Parser Declare ##############
 
 parser = argparse.ArgumentParser(description='Apache tomcat 8 setup and management script')
 parser.add_argument('--base_install','-b',action='store_true',help='Base install for java8 and tomcat8')
-parser.add_argument('--user_install','-u',type=str,help='User instance install, provide username')
-parser.add_argument('--vhost','-V',type=str,help='Install apache vhost, provide domain name and port for the user instance')
+parser.add_argument('--user_install','-u',type=str,metavar=("USERNAME"),help='User instance install, provide username')
+parser.add_argument('--vhost','-V',type=str,metavar=("DOMAIN.COM"),help='Install apache vhost, provide domain name and port for the user instance')
 parser.add_argument('--port','-p',type=int,help='Port for the vhost install, this option can be used only with -V')
 parser.add_argument('--version','-v',action='version',version='tomcat.py v2.0 for any bugs contact the developer of the script')
 args = parser.parse_args()
