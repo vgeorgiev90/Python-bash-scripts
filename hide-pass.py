@@ -9,9 +9,9 @@ import getpass
 ###### Parser ##########
 
 parser = argparse.ArgumentParser(description='Basic password encoding based on digit key')
-parser.add_argument('--encode','-e',type=str, help='Provide the string to be encoded')
-parser.add_argument('--decode','-d',type=str, help='Provide encoded string to decode')
-parser.add_argument('--file','-f',type=str, help='File to search for password')
+parser.add_argument('--encode','-e',type=str,metavar=("PASSWORD"), help='Provide the string to be encoded')
+parser.add_argument('--decode','-d',type=str,metavar=("ENC-PASSWORD"), help='Provide encoded string to decode')
+parser.add_argument('--file','-f',type=str, help='File to search for password, you can set search pattern in the script')
 parser.add_argument('--version','-v',action='version', version="%(prog)s 2.0\nCode may be up to 10 chars only digits..\nString must be without spaces...")
 args = parser.parse_args()
 
