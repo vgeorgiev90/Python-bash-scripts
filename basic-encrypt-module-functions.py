@@ -11,15 +11,25 @@ temp = collections.OrderedDict()
 
 ###### Functions ########
 
+def code_calculation(code):
+    int_list = [int(i) for i in str(code)]
+    first_op = [(i**2 + 2*i + i) for i in int_list]
+    total = 0
+    for i in first_op:
+        total = total + i
+    if total > 94:
+        while total > 94:
+            total = total - 94
+    return total
+
+
 def init():
     code = getpass.getpass('Enter code: ')
     count = 0
     for i in chars:
         temp[i] = count
         count = count + 1
-    total = 0
-    for i in code:
-        total = total + int(i)
+    total = code_calculation(code)
     return total
 
 
@@ -54,7 +64,7 @@ def decode(enc_pass,code):
     dec_pass = ''.join(enc)
     return dec_pass
 
-def file_code(file,mode,code):                     ## Code can be either 'encode' or 'decode' 
+def file_code(file,mode,code):                     ## Code can be either 'encode' or 'decode'
     if mode == 'encode':
         with open(file,'r') as f:
             cont = f.read()
@@ -81,5 +91,3 @@ def file_code(file,mode,code):                     ## Code can be either 'encode
             f.write(content4)
     else:
         print "The functions takes only encode or decode as argument"
-
-
