@@ -55,8 +55,7 @@ ip_to_block () {
 
 # The function is for csf firewall it can be changed for other firewall applications or iptables directly
 firewall_block () {
-    IPb=`cat block-ip.txt | sort | uniq`
-    for i in `echo $IPb`;do
+    for i in `cat block-ip.txt | sort | uniq`;do
         csf -td $i
     done
 }
