@@ -66,6 +66,7 @@ clean () {
 }
 
 ########### Script ###########
+clean 2>/dev/null
 
 if [ -z ${1} ];then
     for dir in `echo $SUPHP`;do
@@ -75,11 +76,9 @@ if [ -z ${1} ];then
         ip_to_block $dom
     done
     firewall_block
-    clean
 # Option to provide domain manually
 else
     dom=${1}
     ip_to_block $dom
     firewall_block
-    clean
 fi
