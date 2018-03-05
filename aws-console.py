@@ -1,4 +1,5 @@
 #!/bin/python
+#AWS console script with EC2 and S3 basic functionality so far
 
 import boto3
 import argparse
@@ -49,6 +50,7 @@ class amazon_ec2():
         print "InstanceID: %s" % response['StartingInstances'][0]['InstanceId']
         print "Current State: %s" % response['StartingInstances'][0]['CurrentState']['Name']
 
+
 class amazon_s3():
     def __init__(self):
         self.s3 = boto3.resource('s3')
@@ -83,16 +85,24 @@ try:
     if args.ec2:
         cmd = args.ec2[0]
         ec2 = amazon_ec2()
-        if cmd == 'list':
-            ec2.list()
-        elif cmd == 'stop':
-            id = args.ec2[1]
-            ec2.stop(id)
-        elif cmd == 'start':
-            id = args.ec2[1]
-            ec2.start(id)
-        else:
-            print "Only list is available as command for now"
+        try:
+            if cmd == 'list':
+                ec2.list()
+            elif cmd == 'stop':
+                id = args.ec2[1]
+                ec2.stop(id)
+            elif cmd == 'start':
+                id = args.ec2[1]
+                ec2.start(id)
+            elif cmd == 'help':
+                print "Commands for EC2"
+                print "list      --  List EC2 created isntances"
+                print "start ID  --  Start EC2 instance by ID"
+                print "stop  ID  --  Stop  EC2 instance by ID"
+            else:
+                print "Only list is available as command for now"
+        except ClientError:
+            print "Check the instance id provided.."
     elif args.s3:
         cmd = args.s3[0]
         s3 = amazon_s3()
@@ -124,5 +134,3 @@ try:
         parser.print_help()
 except IndexError:
     print "Incomplete command...."
-
-                                    
