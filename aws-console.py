@@ -32,12 +32,15 @@ class amazon_ec2():
                     print "InstaceID: %s" % detail['InstanceId']
                     print "InstanceType: %s" % detail['InstanceType']
                     print "Security-Groups: %s" % [i['GroupName'] for i in detail['SecurityGroups']]
+                    print "Security-Groups-id: %s" % detail['SecurityGroups']
+                    print "Tags: %s" % detail['Tags']
                     print "State: %s" % state
                     print ""
                 elif state == 'stopped':
                     print "InstaceID: %s" % detail['InstanceId']
                     print "InstanceType: %s" % detail['InstanceType']
                     print "State: %s" % state
+                    print "Tags: %s" % detail['Tags']
                     print ""
                 else:
                     print "Not enough information"
