@@ -2,6 +2,9 @@
 
 cluster_members="${1}"
 
+#### Check if there is heketi files
+if [ ! -f /etc/heketi/heketi.json ];then
+
 
 #### Generate topology file based on members number
 cat > /etc/heketi/topology.json << EOF
@@ -22,6 +25,7 @@ for i in `seq 1 $((${cluster_members} - 1))`;do
 EOF
 done
 
+## Because of the ... trailing ,
 cat >> /etc/heketi/topology.json << EOF
 { "node": {
            "hostnames": { "manage": ["node${cluster_members}"], "storage": ["node${cluster_members}"], "zone": 1  },
@@ -147,3 +151,9 @@ EOF
 
 chown -R heketi: /etc/heketi
 /usr/bin/heketi --config=/etc/heketi/heketi.json
+
+### If there are files (container restarted) just run heketi
+
+else
+/usr/bin/heketi --config=/etc/heketi/heketi.json
+fi
