@@ -1,4 +1,18 @@
 #!/bin/bash
+## This script is intended to be used with the following dockerfile
+####################################################################
+#FROM ubuntu:latest
+#RUN apt-get update; apt-get install wget openssh-client vim -y
+#RUN ssh-keygen -N "" -f ~/.ssh/id_rsa
+#COPY heketi-entry.sh /root/heketi-entry.sh
+#RUN wget https://github.com/heketi/heketi/releases/download/v8.0.0/heketi-v8.0.0.linux.amd64.tar.gz -P /root && tar -xzf /root/heketi-v8.0.0.linux.amd64.tar.gz -C /root && mv /root/heketi/heketi /usr/bin/ && chmod +x /usr/bin/heketi && chmod +x /root/heketi-entry.sh
+#EXPOSE 8080 8081
+#VOLUME /var/lib/heketi
+#VOLUME /etc/heketi
+#ENTRYPOINT /root/heketi-entry.sh $CLUSTER_SIZE
+####################################################################
+##Ref: https://hub.docker.com/r/viktor90/heketi/
+
 
 cluster_members="${1}"
 
