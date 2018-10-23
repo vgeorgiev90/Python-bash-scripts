@@ -1,1 +1,1 @@
-Differrent bash and python scripts
+#Differrent bash and python scripts written for personal use.
