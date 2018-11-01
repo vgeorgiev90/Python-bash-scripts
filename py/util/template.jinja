@@ -1,0 +1,14 @@
+[nfs-server]
+{{ nfs_server }}
+[workers]
+{{ worker_host }}
+[all:vars]
+vg_name={{ vg_name }}
+devices={{ devices }}
+lv_name={{ lv_name }}
+lv_size={{ lv_size }}
+fs_type={{ fs_type }}
+mount_name={{ mount_name }}
+worker_host={{ worker_host }}
+nfs_server={{ nfs_server }}
+work_dir={{ work_dir }}
