@@ -4,6 +4,7 @@ https://github.com/vgeorgiev90/Ansible/tree/master/dynamic-hostpath-with-nfs
 Notes:
 * hardcoded execution paths for playbooks "/home/ansible/dynamic-hostpath-with-nfs/hosts" - to be fixed
 * Very basic auth with token that needs to be places in config.json in the same dir as the script - to be fixed
+* The scirpt must run with the user who executes the playbooks (ansible)
 
 Endpoints:
 1. /configs   -   List all ansible configs [GET]
