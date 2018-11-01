@@ -18,20 +18,20 @@ Endpoints:
    * POST   - exec ansible scripts with config file specified
 
 Example Usage:
-* Get configs
+* Get configs:
 curl -XGET IP:5000/configs
 
-* Get content of test-hosts file from configs
+* Get content of test-hosts file from configs:
 curl -XGET IP:5000/configs/test-hosts
 
-* Create new file
+* Create new file:
 curl -XPOST IP:5000/configs/new-file -H "token: TOKEN" -d 'options={"vg_name": "kube-vg", "lv_name": "api-test", "devices": "[\"/dev/vdb1\"]", "lv_size": "1g","fs_type": "ext4","mount_name": "/kubernetes/api","worker_host": "10.0.11.170", "nfs_server": "10.0.11.170", "work_dir": "/api"}'
 
-* Change a value in existing file
+* Change a value in existing file:
 curl -XPUT IP:5000/configs/existing-file -H "token: TOKEN" -d 'option=lv_name=api-lv' -d 'replace=lv_name=api2-lv'
 
-* Delete a file
+* Delete a file:
 curl -XDELETE IP:5000/configs/file -H "token: TOKEN"
 
-* Exec ansible script with config file
+* Exec ansible script with config file:
 curl -XPOST IP:5000/exec/file -H "token: TOKEN" -H "provision: vginit/volume" -d "state=present/absent"
