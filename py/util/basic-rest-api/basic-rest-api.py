@@ -24,7 +24,7 @@ except:
 class Exec(Resource):
 
     def post(self, name):
-#### Get args one for subcommand: vginit or volume , one for state present/absent
+        #### Get args one for subcommand: vginit or volume , one for state present/absent
         choice = ['present', 'absent']
         choice2 = ['vginit', 'volume']
         parser = reqparse.RequestParser()
@@ -32,15 +32,15 @@ class Exec(Resource):
         parser.add_argument("state", choices=choice, required=True)
         parser.add_argument("token", location='headers', required=True)
         args = parser.parse_args()
-#### Check if the token provided matches the auth one
+        #### Check if the token provided matches the auth one
         if args['token'] == token:
 
-#### Check if the ansible config file actually exists
+            #### Check if the ansible config file actually exists
             files = subprocess.check_output(['ls', '/home/ansible/dynamic-hostpath-with-nfs/hosts'])
             for file in files.split("\n"):
                 if file == name:
 
-#### If there is such file execute provisioning command
+                    #### If there is such file execute provisioning command
                     provision = args['provision'].encode('ascii', 'ignore')
                     name = name.encode('ascii','ignore')
                     state = args['state'].encode('ascii','ignore')
@@ -48,7 +48,7 @@ class Exec(Resource):
                     subprocess.Popen([cmd], cwd='/home/ansible/dynamic-hostpath-with-nfs/',shell=True)
                     return "Executed successfully.. ", 200
 
-#### Return 404 if the cofig file can not be found
+            #### Return 404 if the cofig file can not be found
             return "Config file {} can not be found".format(name), 404
         else:
             return "Auth token {} is not valid".format(args['token']), 401
@@ -65,7 +65,7 @@ class Config(Resource):
 #### Api endpoint to check the content of config file, create new config, modify existing one or delete
 class Files(Resource):
 
-#### Check the content of provided config file    
+    #### Check the content of provided config file    
     def get(self, name):
         list = subprocess.check_output(['ls', '/home/ansible/dynamic-hostpath-with-nfs/hosts'])
         for file in list.split("\n"):
@@ -74,7 +74,7 @@ class Files(Resource):
                 return reply, 200
         return "File {} not found..".format(name), 404
 
-#### Create new config
+    #### Create new config
     def post(self,name):
         parser = reqparse.RequestParser()
         parser.add_argument("options",required=True)
@@ -82,23 +82,23 @@ class Files(Resource):
         args = parser.parse_args()
         if args['token'] == token:
             files = subprocess.check_output(['ls', '/home/ansible/dynamic-hostpath-with-nfs/hosts'])
-### Check if it exists first
+            ### Check if it exists first
             for file in files:
                 if name == file:
                     return "File {} already exists".format(name), 400
 
-#### List of needed options for new config file
+            #### List of needed options for new config file
             if name == 'help':
                 return "Needed options for post: 'vg_name','devices','lv_name','lv_size','fs_type','mount_name','worker_host','nfs_server','work_dir'", 200
 
-#### Get all json formated options and parse  
+            #### Get all json formated options and parse  
             path = "/home/ansible/dynamic-hostpath-with-nfs/hosts/%s" % name
             with open('template.jinja', 'r') as t:
                 temp = t.read()
             template = Template(temp)
             data = json.loads(args['options'])
 
-#### Render the jinja template and write the config file
+            #### Render the jinja template and write the config file
             ready = template.render(nfs_server=data['nfs_server'],worker_host=data['worker_host'],devices=data['devices'],vg_name=data['vg_name'],lv_name=data['lv_name'],lv_size=data['lv_size'],fs_type=data['fs_type'],mount_name=data['mount_name'],work_dir=data['work_dir'])
 
             with open(path, 'w') as f:
@@ -107,8 +107,8 @@ class Files(Resource):
         else:
             return "Auth token {} is not valid..".format(args['token']),401
 
-#### Change option for existing file , full option must be specified 
-#### example:  option=lv_name=api-test , replace=lv_name=just-test
+    #### Change option for existing file , full option must be specified 
+    #### example:  option=lv_name=api-test , replace=lv_name=just-test
     def put(self, name):
         parser = reqparse.RequestParser()
         parser.add_argument("option",required=True)
@@ -129,7 +129,7 @@ class Files(Resource):
         else:
             return "Auth token {} is not valid..".format(args['token']),401
 
-#### Delete specified config file 
+    #### Delete specified config file 
     def delete(self, name):
         parser = reqparse.RequestParser()
         parser.add_argument("token", location='headers',required=True)
