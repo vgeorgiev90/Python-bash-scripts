@@ -1,7 +1,6 @@
 #!/usr/bin/python
-### Basic api for dynamic-hostpath-with-nfs ansible playbooks.
-## ToDO: add security identification for execution and config put
-
+### Basic api for dynamic-hostpath-with-nfs ansible playbooks , file needed for the api template.jinja
+## ToDO: add security identification , some error handling here and there , run it on wsgi server
 
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
