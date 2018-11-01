@@ -12,7 +12,7 @@ api = Api(app)
 
 #### Load the auth token from a file config.json
 try:
-    with open('config.json', 'r') as f:
+    with open('/home/ansible/api/config.json', 'r') as f:
         conf = f.read()
     config = json.loads(conf)
     token = config['token']
@@ -65,7 +65,7 @@ class Config(Resource):
 #### Api endpoint to check the content of config file, create new config, modify existing one or delete
 class Files(Resource):
 
-    #### Check the content of provided config file    
+#### Check the content of provided config file    
     def get(self, name):
         list = subprocess.check_output(['ls', '/home/ansible/dynamic-hostpath-with-nfs/hosts'])
         for file in list.split("\n"):
@@ -93,7 +93,7 @@ class Files(Resource):
 
             #### Get all json formated options and parse  
             path = "/home/ansible/dynamic-hostpath-with-nfs/hosts/%s" % name
-            with open('template.jinja', 'r') as t:
+            with open('/home/ansible/api/template.jinja', 'r') as t:
                 temp = t.read()
             template = Template(temp)
             data = json.loads(args['options'])

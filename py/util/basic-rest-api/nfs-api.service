@@ -1,0 +1,16 @@
+[Unit]
+Description=nfs rest api
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+User=ansible
+ExecStart=/home/ansible/api/api.py
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+
