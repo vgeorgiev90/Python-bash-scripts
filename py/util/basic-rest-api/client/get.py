@@ -108,7 +108,7 @@ elif args.cmd[0] == 'help':
     get conf-create file -f /path/to/json/data
     get conf-create file -d json-data
     get conf-change file -d option_pair replace_pair
-    get exec file -s vginit/volume -d present/absent
+    get exec file -s vginit/volume/mount -d present/absent
     """
 else:
     print "Something got broken and i am too lazy to tell you what... maybe your spelling.. maybe missed argument..."
