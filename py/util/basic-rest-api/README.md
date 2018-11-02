@@ -35,7 +35,7 @@ curl -XPUT IP:5000/configs/existing-file -H "token: TOKEN" -d 'option=lv_name=ap
 curl -XDELETE IP:5000/configs/file -H "token: TOKEN"
 
 * Exec ansible script with config file:
-curl -XPOST IP:5000/exec/file -H "token: TOKEN" -H "provision: vginit/volume" -d "state=present/absent"
+curl -XPOST IP:5000/exec/file -H "token: TOKEN" -H "provision: vginit/volume/mount" -d "state=present/absent"
 
 example config.json
 {
