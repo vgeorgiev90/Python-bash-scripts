@@ -26,7 +26,7 @@ class Exec(Resource):
     def post(self, name):
         #### Get args one for subcommand: vginit or volume , one for state present/absent
         choice = ['present', 'absent']
-        choice2 = ['vginit', 'volume']
+        choice2 = ['vginit', 'volume', 'mount']
         parser = reqparse.RequestParser()
         parser.add_argument("provision", choices=choice2, location='headers', required=True)
         parser.add_argument("state", choices=choice, required=True)
