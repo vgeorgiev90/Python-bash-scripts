@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ website }}
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ website }}
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ website }}
+  template:
+    metadata:
+      labels:
+        app: {{ website }}
+    spec:
+      securityContext:
+        runAsUser: 101
+      containers:
+      - name: {{ website }}
+        image: viktor90/nginx:unpriv
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: {{ website }}
+          mountPath: /usr/share/nginx/html
+        - name: shared-storage
+          mountPath: /mnt
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: {{ website }}
+        persistentVolumeClaim:
+          claimName: {{ website }}
+      - name: shared-storage
+        persistentVolumeClaim:
+          claimName: shared-storage
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ website }}
+  name: {{ website }}
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: {{ website }}
+  type: ClusterIP
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ website }}
+  namespace: default
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: www.{{ domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ website }}
+          servicePort: 80
+  - host: {{ domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ website }}
+          servicePort: 80
+
+
+
