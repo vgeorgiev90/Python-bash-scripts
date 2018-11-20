@@ -16,8 +16,8 @@ except:
     print "No config.json found.."
     raise SystemExit
 
-exec_url = "http://%s:5000/exec" % config['host']
-config_url = "http://%s:5000/check" % config['host']
+exec_url = "https://%s:5000/exec" % config['host']
+config_url = "https://%s:5000/check" % config['host']
 token = config['token']
 
 headers = {
@@ -34,22 +34,22 @@ parser = Parser()
 args = parser.parse_args()
 
 if args.cmd[0] == 'pods':
-    response = requests.get(config_url + '/pods', headers=headers)
+    response = requests.get(config_url + '/pods', headers=headers, verify=False)
     print response.text
 
 elif args.cmd[0] == 'configs':
-    response = requests.get(config_url + '/configs', headers=headers)
+    response = requests.get(config_url + '/configs', headers=headers, verify=False)
     print response.text
 
 elif args.cmd[0] == 'template' and args.data:
     website = args.cmd[1]
     domain = args.data[0]
-    response = requests.post(config_url + '/' + website , headers=headers, data={ "domain": domain })
+    response = requests.post(config_url + '/' + website , headers=headers, data={ "domain": domain }, verify=False)
     print response.text
 
 elif args.cmd[0] == 'new-wl':
     website = args.cmd[1]
-    response = requests.get(exec_url + '/' + website, headers=headers)
+    response = requests.get(exec_url + '/' + website, headers=headers, verify=False)
     print response.text
 
 elif args.cmd[0] == 'deploy' and args.data:
@@ -58,7 +58,7 @@ elif args.cmd[0] == 'deploy' and args.data:
            "domain": args.data[0],
            "website": args.data[1]
         }
-    response = requests.post(exec_url + '/' + website, headers=headers, data=data)
+    response = requests.post(exec_url + '/' + website, headers=headers, data=data, verify=False)
     print response.text
 
 else:

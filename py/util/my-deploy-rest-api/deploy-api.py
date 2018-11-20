@@ -5,13 +5,17 @@ from flask_restful import Api, Resource, reqparse
 import subprocess
 import json
 from jinja2 import Template
-import time
+import ssl
 
 app = Flask(__name__)
 api = Api(app)
 
 
 ##################### Load auth token ###################
+
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+context.load_cert_chain('example.com.crt', 'example.com.key')
+
 
 try:
     with open('./.config.json', 'r') as f:
@@ -114,4 +118,4 @@ api.add_resource(Exec, "/exec/<string:name>")
 api.add_resource(Check, "/check/<string:name>")
 
 #### Run the api with devel server in debug mode
-app.run(host='0.0.0.0', port=5000,debug=True)
+app.run(host='0.0.0.0', port=5000,debug=True, ssl_context=context)
