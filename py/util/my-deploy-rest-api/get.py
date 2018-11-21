@@ -58,7 +58,7 @@ elif args.cmd[0] == 'deploy' and args.data:
            "domain": args.data[0],
            "website": args.data[1]
         }
-    response = requests.post(exec_url + '/' + website, headers=headers, data=data, verify=False)
+    response = requests.post(exec_url + '/' + pod_name, headers=headers, data=data, verify=False)
     print response.text
 
 else:
