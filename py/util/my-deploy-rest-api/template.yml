@@ -29,6 +29,7 @@ spec:
       containers:
       - name: {{ website }}
         image: viktor90/nginx:unpriv
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
         volumeMounts:
@@ -43,6 +44,9 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+        securityContext:
+          capabilities:
+            drop: ["MKNOD","AUDIT_WRITE","NET_RAW","DAC_OVERRIDE","KILL", "SETGID", "SETUID", "SETFCAP", "SETPCAP", "SYS_CHROOT"]
       volumes:
       - name: {{ website }}
         persistentVolumeClaim:
@@ -93,6 +97,3 @@ spec:
         backend:
           serviceName: {{ website }}
           servicePort: 80
-
-
-
