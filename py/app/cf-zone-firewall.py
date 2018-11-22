@@ -50,6 +50,14 @@ class firewall():
         response = os.system(cmd)
         print response
 
+    def check_rule(self, rule_id):
+        self.response3 = requests.get(url2 + '/' + rule_id, headers=headers)
+        config = json.loads(self.response3.text)
+        print "IP addresses for rule: %s" % config['result']['description']
+        print "===================================="
+        for dict in config['result']['configurations']:
+            print dict['value']
+         
     def add_ip(self, rule_id, ip):
         self.response3 = requests.get(url2 + '/' + rule_id, headers=headers)
         config = json.loads(self.response3.text)
@@ -86,15 +94,21 @@ elif args.cmd == 'add-ip' and args.data:
     ip = args.data[1]
     fw.add_ip(rule_id, ip)
 
+elif args.cmd == 'check-rule' and args.data:
+    rule_id = args.data[0]
+    fw.check_rule(rule_id)
+
 else:
     print """
         Sub-commands:
         list        ---  List all rules and associated IPs
         create-rule ---  Create new rule in firewall zone
         add-ip      ---  Add Ip address to existing rule
-
+        check-rule  ---  Check all added IPs for a rule
+        
         Usage:
         cf-firewall.py list
+        cf-firewall.py check-rule -d RULE-ID
         cf-firewall.py create-rule -d NAME
         cf-firewall.py add-ip -d RULE-ID IP-ADDRESS
     """
