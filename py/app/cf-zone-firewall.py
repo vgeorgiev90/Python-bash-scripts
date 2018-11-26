@@ -4,18 +4,19 @@ import requests
 import json
 import argparse
 import os
+import re
 
-mail = "your-cf-mail"                                                      #### Provide your cloudflare mail address
-key = "your-cf-key"                                                        #### Provide your Cloudflare API key
+mail = "cf-mail-address"                                                       #### Provide your cloudflare mail address
+key = "cf-api-key"                                                        #### Provide your Cloudflare API key
 url1 = "https://api.cloudflare.com/client/v4/zones/9eeff1b8950ac2697e66560e19a199b5/firewall/lockdowns?&per_page=20"
 url2 = "https://api.cloudflare.com/client/v4/zones/9eeff1b8950ac2697e66560e19a199b5/firewall/lockdowns"
 
-### headers for curl
+
 h1 = "\"X-Auth-Email: %s\"" % mail
 h2 = "\"X-Auth-Key: %s\"" % key
 h3 = "\"Content-type: application/json\""
 
-### headers dict for requests
+
 headers = {
    "X-Auth-Email": mail,
    "X-Auth-Key": key ,
@@ -29,7 +30,10 @@ def Parser():
     parser.add_argument('--data','-d',nargs='+',help='User instance install, provide username')
     return parser
 
+
+
 class firewall():
+
     def __init__(self):
         self.response = requests.get(url1, headers=headers)
         self.dict = json.loads(self.response.text)
@@ -46,6 +50,7 @@ class firewall():
                 print ip['value']
 
     def create_rule(self, name):
+
         cmd = "curl -XPOST %s -H %s -H %s -H %s --data '{\"paused\": false, \"configurations\": [{\"target\":\"ip\",\"value\":\"192.168.1.1\"}] , \"urls\": [\"admim.finte.co/*\",\"admin.finte.co/*\"], \"description\": \"%s\" }'" % (url2, h1, h2, h3, name)
         response = os.system(cmd)
         print response
@@ -57,7 +62,7 @@ class firewall():
         print "===================================="
         for dict in config['result']['configurations']:
             print dict['value']
-         
+
     def add_ip(self, rule_id, ip):
         self.response3 = requests.get(url2 + '/' + rule_id, headers=headers)
         config = json.loads(self.response3.text)
@@ -65,18 +70,33 @@ class firewall():
             if dict['value'] == ip:
                 print "%s is already in the list %s" % (ip, config['result']['description'])
                 raise SystemExit
+
         data = config['result']
         del data['id']
         data['configurations'].append({ "target": "ip", "value": ip})
+
+
         rep = str(data['configurations'])
         rep2 =  rep.replace("u'", "'")
         confs = rep2.replace("'", "\"")
+
         lock_url = url2 + '/' + rule_id
-        cmd = "curl -XPUT %s -H %s -H %s -H %s --data '{\"paused\": false, \"configurations\": %s , \"urls\": [\"admim.finte.co/*\",\"admin.finte.co/*\"], \"description\": \"%s\" }'" % (lock_url, h1, h2, h3, confs, data['description'])
+
+        b2b_pattern = "^b2b.*"
+        crm_pattern = "^crm.*"
+
+        if re.match(b2b_pattern, config['result']['description']):
+            cmd = "curl -XPUT %s -H %s -H %s -H %s --data '{\"paused\": false, \"configurations\": %s , \"urls\": [\"b2b-api.finte.co/*\"], \"description\": \"%s\" }'" % (lock_url, h1, h2, h3, confs, data['description'])
+        elif re.match(crm_pattern, config['result']['description']):
+            cmd = "curl -XPUT %s -H %s -H %s -H %s --data '{\"paused\": false, \"configurations\": %s , \"urls\": [\"admim.finte.co/*\",\"admin.finte.co/*\"], \"description\": \"%s\" }'" % (lock_url, h1, h2, h3, confs, data['description'])
+        else:
+            print "No match on the list"
+            raise SystemExit
         response = os.system(cmd)
         print response
 
-############# Script ##################
+
+
 parser = Parser()
 args = parser.parse_args()
 
@@ -101,12 +121,14 @@ elif args.cmd == 'check-rule' and args.data:
 else:
     print """
         Sub-commands:
+
         list        ---  List all rules and associated IPs
         create-rule ---  Create new rule in firewall zone
         add-ip      ---  Add Ip address to existing rule
         check-rule  ---  Check all added IPs for a rule
-        
+
         Usage:
+
         cf-firewall.py list
         cf-firewall.py check-rule -d RULE-ID
         cf-firewall.py create-rule -d NAME
