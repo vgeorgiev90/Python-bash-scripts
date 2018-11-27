@@ -24,6 +24,16 @@ spec:
       labels:
         app: {{ website }}
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoreDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: role
+                operator: In
+                value:
+                - webapps
       securityContext:
         runAsUser: 101
       containers:
