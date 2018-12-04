@@ -251,7 +251,7 @@ EOF
 
 ####### Create kubeconfigs
 
-echo -p "kube api address: " KUBERNETES_ADDRESS
+read -p "kube api address: " KUBERNETES_ADDRESS
 
 for instance in $w1 $w2 $w3 $w4; do
 kubectl config set-cluster kubernetes-the-hard-way \
