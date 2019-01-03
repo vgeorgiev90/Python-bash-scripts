@@ -158,3 +158,5 @@ else:
     print "==========================================================================================================================================="
     print "kubectl nfs provision -d default/my-pv-vol 2Gi  --   This will create PV and PVC with name my-pv-vol in namespace default and size 2GB"
     print "kubectl nfs delete -d default/my-pv-vol         --   This will delete PV and PVC with name my-pv-vol and also corresponding exported shares"
+    print ""
+    print "Notes:  All exported directories are owned by ubuntu/debian user nobody (UID 65534) , so make sure to add securityContext with fsGroup: 65534 in the pod definition"
