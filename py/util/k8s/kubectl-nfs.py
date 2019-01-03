@@ -151,7 +151,7 @@ elif args.cmd[0] == 'delete' and args.data:
 
 else:
     print "Usage:  "
-    print "The script needs .nfs.json file created with content"
+    print "This script is extension to kubectl place it in the same dir (/usr/local/bin) , it needs .nfs.json file created with content"
     print '{ "server": "nfs-server-ip", "api-ca": "/path/to/k8s/ca" }'
     print "Nfs server must be configured and ssh auth without password"
     print "Auth Bearer token must be configured in class variable headers"
