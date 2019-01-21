@@ -127,15 +127,15 @@ else:
     Usage:
     ssl.py cfssl                                                                             --- Download and install cfssl binary (required)
     ssl.py ca -o NAME                                                                        --- Generate CA for certificate signing
-    ssl.py cert -o NAME ALT_NAMES -c local/remote  (if remote: /path/to/ca /path/to/ca-key)  --- Generate certificate without any hostnames
+    ssl.py cert -o NAME ALT_NAMES -c local/remote  (if remote: /path/to/ca /path/to/ca-key)  --- Generate certificate
 
     
     Example for certificate generation with existing CA and 2 IPs for hostnames
     ssl.py cert -o viktor system:node:viktor -c remote /var/lib/ca/ca.pem /var/lib/ca/ca-key.pem -n 127.0.0.1,10.0.11.120
 
-    Example for certificate with newly generated CA and without hostnames
+    Example for certificate with newly generated CA and without hostnames (generate )
     ssl.py cert -o viktor alt-name-viktor -c local
 
     Notes:
-    cfssl is mandatory , along with python jinja2 module
+    cfssl is mandatory , along with python jinja2 module run ssl.py cfssl before first time usage.
     """
