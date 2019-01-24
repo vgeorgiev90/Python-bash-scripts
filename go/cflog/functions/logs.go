@@ -36,7 +36,9 @@ func Logs(date string, hour int) {
 	str_hour := strconv.Itoa(hour)
 	str_hour2 := strconv.Itoa(hour2)
 
-	url_parts := []string{api_url, "start=", date, "T", str_hour, ":00:00Z", "&end=", date2, "T", str_hour2, ":00:00Z"}
+	fields := "CacheCacheStatus,CacheResponseBytes,CacheResponseStatus,CacheTieredFill,ClientASN,ClientCountry,ClientDeviceType,ClientIP,ClientIPClass,ClientRequestBytes,ClientRequestHost,ClientRequestMethod,ClientRequestPath,ClientRequestProtocol,ClientRequestReferer,ClientRequestURI,ClientSSLProtocol,EdgeColoID,EdgePathingOp,EdgePathingSrc,EdgePathingStatus,EdgeRateLimitAction,EdgeRateLimitID,EdgeRequestHost,EdgeResponseStatus,EdgeServerIP,OriginIP,OriginResponseStatus,OriginResponseTime,ParentRayID,RayID,SecurityLevel,WAFAction,WAFFlags,WAFMatchedVar,WAFProfile,WAFRuleID,WAFRuleMessage,"
+	
+	url_parts := []string{api_url, "start=", date, "T", str_hour, ":00:00Z", "&end=", date2, "T", str_hour2, ":00:00Z", "&fields=", fields}
 	url := strings.Join(url_parts, "")
 
 	//Create request and add auth headers
