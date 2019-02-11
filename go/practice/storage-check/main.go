@@ -1,7 +1,7 @@
 package main
 
 import (
-	"storage/functions"
+	"storage-check/functions"
 	"flag"
 	"fmt"
 )
