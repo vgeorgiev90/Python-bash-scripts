@@ -32,7 +32,7 @@ net.ipv4.ip_nonlocal_bind = 1
 
 	//Disable swap
 	cmd1 := "swapoff -a && cp /etc/fstab /etc/fstab-backup"
-	cmd2 := "sed -ie '/\bswap\b/d' /etc/fstab"
+	cmd2 := "sed -i '/\\bswap\\b/d' /etc/fstab"
 	//Add ubuntu docker repo and k8s repo keys
 	cmd3 := "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -"
 	//Add the repositories
@@ -49,7 +49,8 @@ net.ipv4.ip_nonlocal_bind = 1
 			fmt.Println("There was error with command:", c)
 			fmt.Println(err)
 		}
-
+                fmt.Println("Running command...")
+                fmt.Println(c)
 	}
 
 }
@@ -67,6 +68,8 @@ func Gluster() {
                         fmt.Println("There was error with command:", c)
                         fmt.Println(err)
 		}
+                fmt.Println("Running command...")
+                fmt.Println(c)
 }
 }
 
@@ -112,7 +115,7 @@ func Help() {
 	fmt.Println("")
 	fmt.Println(`
 	Flags usage:
-	kubescale -gluster=yes/no                      ---  Install or not glusterfs
+	kubescale -glusterfs=yes/no                    ---  Install or not glusterfs
 	kubescale -key="Some-long-public-key-string"   ---  Public key to be added for the root user , if empty or ommited the user will be prompted
 	kubescale -join=yes/api-address,token,hash     ---  Whether to join or not node to the cluster, if empty or ommited node will not be joined, if yes is specified user will be prompted for information , else all info can be passed separated by ,  (api-address,token,hash)
 
