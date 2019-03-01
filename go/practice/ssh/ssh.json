@@ -1,0 +1,10 @@
+{
+  "host": "localhost:22",
+  "pass": "TElOUDBtbjFzM2wzc24w",
+  "cmd": [ 
+	  "cat /etc/fstab", 
+	  "cat /etc/hosts",
+ 	  "echo host1",
+	  "echo host2"
+  ]
+}
