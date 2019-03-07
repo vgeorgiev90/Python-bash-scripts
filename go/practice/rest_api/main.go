@@ -2,7 +2,6 @@ package main
 
 import (
 	"rest_api/functions"
-	//"fmt"
 )
 
 func main() {
