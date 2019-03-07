@@ -7,14 +7,17 @@ import (
 )
 
 
-func Router() {
+func Router(db, cert, key string) {
 	router := mux.NewRouter()
 	//Token management
-	router.HandleFunc("/tokens/list", ListToken).Methods("GET")
-	router.HandleFunc("/tokens/create/{user}", CreateToken).Methods("POST")
-	router.HandleFunc("/tokens/delete/{user}", DeleteToken).Methods("DELETE")
+	router.HandleFunc("/tokens/list", func(w http.ResponseWriter, r *http.Request) { ListToken(w, r, db) }).Methods("GET")
+	router.HandleFunc("/tokens/create/{user}", func(w http.ResponseWriter, r *http.Request) { CreateToken(w, r, db) }).Methods("POST")
+	router.HandleFunc("/tokens/delete/{user}", func(w http.ResponseWriter, r *http.Request) { DeleteToken(w, r, db) }).Methods("DELETE")
 	//Functionality
-	router.HandleFunc("/exec/{name}", Exec).Methods("POST")
+	router.HandleFunc("/exec/{name}", func(w http.ResponseWriter, r *http.Request) { Exec(w, r, db) }).Methods("POST")
 
-	log.Fatal(http.ListenAndServe(":8000", router))
+	//Help
+	router.HandleFunc("/help", func(w http.ResponseWriter, r *http.Request) { Help(w, r, db) }).Methods("GET")
+
+	log.Fatal(http.ListenAndServeTLS(":8000", cert, key ,router))
 }

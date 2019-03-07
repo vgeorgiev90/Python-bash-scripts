@@ -113,6 +113,7 @@ func Create_token(host, user string) (response string) {
                 fmt.Println(err)
         }
 	msg := fmt.Sprintf("Record created:\nuser: %s\ntoken: %s\n", user, token)
+	fmt.Println(msg)
 	return msg
 }
 
