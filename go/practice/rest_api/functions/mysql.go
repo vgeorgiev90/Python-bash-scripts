@@ -33,6 +33,52 @@ func Db_install(host, pass string) {
 }
 
 
+func Delete_token(host, user string) {
+        con_string := fmt.Sprintf("api:lhG379pVnTZk18LN@tcp(%s:3306)/api", host)
+        db, err := sql.Open("mysql", con_string)
+        if err != nil {
+                fmt.Println(err)
+        }
+        defer db.Close()
+	query := fmt.Sprintf(`DELETE FROM api.tokens WHERE user="%s"`, user)
+	_, err = db.Query(query)
+        if err != nil {
+                fmt.Println(err)
+        }
+}
+
+type DB_entry struct {
+	Id string `json:"id"`
+	User string `json:"user"`
+	Token string `json:token`
+}
+
+
+func List_token(host string) (entries []DB_entry) {
+	con_string := fmt.Sprintf("api:lhG379pVnTZk18LN@tcp(%s:3306)/api", host)
+        db, err := sql.Open("mysql", con_string)
+        if err != nil {
+                fmt.Println(err)
+        }
+        defer db.Close()
+	query := "select * from api.tokens;"
+	results, err := db.Query(query)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for results.Next() {
+		var entry DB_entry
+		err := results.Scan(&entry.Id, &entry.User, &entry.Token)
+		if err != nil {
+			fmt.Println(err)
+		}
+		entries = append(entries, entry)
+	}
+	return entries
+}
+
+
 func Get_token(host, user string) (token string) {
 
 	var tkn string
@@ -52,7 +98,7 @@ func Get_token(host, user string) (token string) {
 	return tkn
 }
 
-func Create_token(host, user string) {
+func Create_token(host, user string) (response string) {
 	con_string := fmt.Sprintf("api:lhG379pVnTZk18LN@tcp(%s:3306)/api", host)
         db, err := sql.Open("mysql", con_string)
         if err != nil {
@@ -66,9 +112,8 @@ func Create_token(host, user string) {
         if err != nil {
                 fmt.Println(err)
         }
-	fmt.Println("Record created")
-	fmt.Println("User:", user)
-	fmt.Println("Token:", token)
+	msg := fmt.Sprintf("Record created:\nuser: %s\ntoken: %s\n", user, token)
+	return msg
 }
 
 ///Random token generator
