@@ -16,6 +16,10 @@ func Router(db, cert, key string) {
 	//Functionality
 	router.HandleFunc("/exec/{name}", func(w http.ResponseWriter, r *http.Request) { Exec(w, r, db) }).Methods("POST")
 
+	//Nfs
+	router.HandleFunc("/nfs/connections/{action}", func(w http.ResponseWriter, r *http.Request) { Nfs_connection_mysql(w, r, db) }).Methods("POST")
+	router.HandleFunc("/nfs/volume/{action}", func(w http.ResponseWriter, r *http.Request) { Nfs_provision(w, r, db) }).Methods("POST")
+
 	//Help
 	router.HandleFunc("/help", func(w http.ResponseWriter, r *http.Request) { Help(w, r, db) }).Methods("GET")
 
