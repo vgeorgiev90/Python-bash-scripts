@@ -86,7 +86,7 @@ DELETE /tokens/delete/{user}	---	Delete existing user
 POST /exec/{name}		--- 	Endpoint for future functionalities( expects body with content {"content": "some info"})
 GET /help			---	Print this help message
 POST /nfs/connections/{action}  ---     create, delete or get nfs connection string(json body containing {"nfs_host": "1.1.1.1", "key_path": "/path/to/private/key", "kube_api": "2.2.2.2:6443", "kube_token": "some-token-here"}) , for get only nfs host can be provided - {"nfs_host": "127.0.0.1"}
-POST /nfs/volume/{action}	---     Provision NFS volune(json body {"directory": "/export/dir", "nfs_host": "2.2.2.2", "pvc_size": "1Gi", "pvc_name": "Something", "pvc_namespace": "default"}) action - either create or delete
+POST /nfs/volume/{action}	---     Provision NFS volune(json body {"directory": "/export/dir", "nfs_host": "2.2.2.2", "pvc_size": "1Gi", "pvc_name": "Something", "pvc_namespace": "default"}) action - either create or delete , Note: do not use _ for pvc name
 `
 
         if provided_token == token {
@@ -209,8 +209,12 @@ func Nfs_provision(w http.ResponseWriter, r *http.Request, db_host string) {
 			io.WriteString(w, resp)
 			io.WriteString(w, resp2)
 		} else if params["action"] == "delete" {
+			data, resp := Pv_delete(body.Name, body.Dir, entry.Nfs_host, entry.Kube_api, entry.Kube_token, body.Size)
+			resp2 := Pvc_delete(body.Namespace, data)
 			sess := Ssh_session(entry.Nfs_host, entry.Key_path)
 			Delete(sess, body.Dir)
+                        io.WriteString(w, resp)
+                        io.WriteString(w, resp2)
 		}
 	} else {
                 io.WriteString(w, "Provided token is invalid for this user\n")
