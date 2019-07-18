@@ -1,0 +1,33 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: webhook-test
+webhooks:
+  - name: webhook-test.k8s.io
+    clientConfig:
+      url: https://172.31.28.196:10000
+        #host: https://172.31.28.196:10000
+#Cluster config 
+#      service:
+#        name: webhook
+#        namespace: admission-test
+#        path: "/"
+      ## For caBundle
+      ## kubectl get configmap -n kube-system extension-apiserver-authentication -o=jsonpath='{.data.client-ca-file}' | base64 | tr -d '\n'
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRFNU1EY3hNakV3TWpReU5sb1hEVEk1TURjd09URXdNalF5Tmxvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTncyCkRCTCtobm5oWHlDNFVwTEV5bnhFYXlYcWNGYklGMUJPWDRYdkVWT3QzaWprUmtkc2ZwMHNtN1c4YUM5cGNoaGUKRThxWlJoQWZ0TFJDeWlPTUIwaXZpclpwZHBhK0ZJSm5PUjhiWndGbkdhVTNNbHpuc2RKcjFYdXNFZHpYVXlscwpaK2xQdWRQaU5tZnplNURyUjBRbTJGT0w3RXN1cCtLZ3Q3NzFxT1lwbGVVRXA2MFlHeEVDZld5NCtYY3BiTHRwCllld0szRkdiR1EwVmQ4bHVoZGhTVjhXOXhZT1VLNXRDbys3SG5EV2VnUk1Tb2Nrb05qdnF1WHZtdk5ZZk5NSnIKUWRaREZ1akM3T2lCV0VHQUp4WkdBUTZhUDV3cDd6RkpsR2tHUGpBZWxIdlhrV2R0bEduVHR5eWNBeExobXdsOQp1bWNtQnQzL0lVK3lwS3VuZDI4Q0F3RUFBYU1qTUNFd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFFVzBibElzWjM1NDQ2Q0lTUWNVYmNvbkF0Yk4KblV5MkJoS3BQV3JvUzBWQkNLK1llOCsvMDhzd2RGVEZ2YnhvRE9hTElmb3VxL0NwRWt0elUrSStJSWs2eWxMZgprTkt5NDI0SnNYaUpvdFhkeHpWVHRScXZnSUs3T3ZpZ25HQkVXU2oxRlZqQzhscThOSk5PMUhtS1d3azEwcVRKCkE3cHJTSkpjMEs2K1dnR0MrMjZEa1krZWJMckk3WVZJR0ZQbEwrSG85V3NLSWFBUkd4OXBleC85TFdaU1haUFMKV3UybGFPTGdYMVZ4QnBiVW1TdWhzUDI5blplalBlLzBhVENITkdpQlp6bFcreTdKZk45ZEFMcEZKM0c2Njd0SwpIQjZIS00xYVNlWXFvU0VEMVB1eXVVNXhsZkpRVk1GM3pWV2ttQVV2QnpBVGg3SWdwTFJxODdtempabz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+    rules:
+      - operations:
+          - CREATE
+          - UPDATE
+        apiGroups:
+          - "apps"
+        apiVersions:
+          - "*"
+        resources:
+          - "deployments"
+          - "statefulsets"
+          - "daemonsets"
+    failurePolicy: Fail
+    namespaceSelector:
+      matchLabels:
+        webhook: "enabled"
