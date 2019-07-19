@@ -1,3 +1,4 @@
+### This definition can be changed of course
 name: sidecar
 image: mysql:5.7
 ports:

@@ -50,7 +50,7 @@ def get_patch(api_request):
     api_object = api_request['request']['object']
 
     ## Get sidecar definition and parse it from yaml to json
-    with open('../sidecars/container.yaml', 'r') as f:
+    with open('/app/sidecars/container.yaml', 'r') as f:
         data = f.read()
     yaml_data = yaml.safe_load(data)
     sidecar = json.dumps(yaml_data)
@@ -74,4 +74,4 @@ def webhook():
 
 
 ## Start the admission webhook app
-app.run(host='0.0.0.0', port=10000, ssl_context=('../ssl/webhook.admission-test.svc.pem', '../ssl/webhook.admission-test.svc-key.pem'))
+app.run(host='0.0.0.0', port=443, ssl_context=('/app/ssl/tls.crt', '/app/ssl/tls.key'))

@@ -1,0 +1,58 @@
+# kubectl create secret tls webhook-certs --cert=/path/to/file.crt --key=/path/to/key.pem
+# kubectl create cm webhook-sidecar --from-file=sidecars/container.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: webhook
+  name: webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: webhook
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: webhook
+    spec:
+      containers:
+      - image: webhook:v1
+        name: webhook
+        ports:
+        - containerPort: 443
+        volumeMounts:
+        - name: certificates
+          mountPath: /app/ssl
+        - name: sidecar
+          mountPath: /app/sidecars/container.yaml
+          subPath: container.yaml
+      volumes:
+      - name: certificates
+        secret:
+          secretName: webhook-certs
+      - name: sidecar
+        configMap:
+          name: webhook-sidecar
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    run: webhook
+  name: webhook
+spec:
+  ports:
+  - name: tcp-webhook
+    port: 443
+    protocol: TCP
+    targetPort: 443
+  selector:
+    run: webhook
+
