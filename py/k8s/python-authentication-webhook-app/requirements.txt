@@ -1,0 +1,7 @@
+flask
+jsonpatch
+pyyaml
+pymysql
+wtforms
+requests
+python-dotenv

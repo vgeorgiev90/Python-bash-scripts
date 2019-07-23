@@ -1,0 +1,56 @@
+<title>K8S Roles</title>
+                        <link rel="stylesheet" media="screen" href="static/bootstrap.min.css">
+                        <link rel="stylesheet" href="static/bootstrap-theme.min.css">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    background-image: url('/static/k8s_cover.png');
+}
+</style>
+
+<div class="container">
+<h2>Delete K8S Role</h2>
+<form action="" method="post" role="form">
+    {{ form.csrf }}
+<div class="form-group">
+      <label for="role_name">Role:</label>
+<input type="text" class="form-control" id="role_name" name="role_name" placeholder="Your Kubernetes Role">
+
+</div>
+<button type="submit" class="btn btn-success">Delete Role</button>
+</form>{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+
+{% for message in messages %}
+{% if "Error" not in message[1]: %}
+<div class="alert alert-info">
+                <strong>Success! </strong> {{ message[1] }}</div>
+{% endif %}
+
+{% if "Error" in message[1]: %}
+<div class="alert alert-warning">
+                {{ message[1] }}</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="static/w3.css">
+
+<table>
+<tr>
+<th>RoleName</th>
+<th>Rules</th>
+</tr>
+{% for item in data %}
+  <tr>
+    <th>{{item['metadata']['name']}}</th>
+    <th>{{item['rules']}}</th>
+  </tr>
+{% endfor %}
+</table>
+</div>
+<p></p>
+<a target="_self" href="{{ url_for('app_home') }}">Back to menu</a>
+

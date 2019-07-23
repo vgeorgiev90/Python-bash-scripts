@@ -1,0 +1,23 @@
+<title>K8S Roles</title>
+        	 	<link rel="stylesheet" media="screen" href="static/bootstrap.min.css">
+        	 	<link rel="stylesheet" href="static/bootstrap-theme.min.css">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    background-image: url('/static/k8s_cover.png');
+}
+</style>
+
+<div class="container">
+<h2>Create K8S Role</h2>
+<form action="" method="post" role="form">
+    {{ form.csrf }}
+<textarea name="role_file" rows="20" cols="50">Your Kubernetes role here...</textarea>
+<div class="form-group">
+
+</div>
+<button type="submit" class="btn btn-success">Create Role</button>
+</form>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="static/w3.css">
+<a target="_self" href="{{ url_for('app_home') }}">Back to menu</a>
