@@ -114,7 +114,7 @@ def present(data):
 	url = api_address + endpoints[kind] + namespace + "/secrets"
     elif kind == "service":
 	url = api_address + endpoints[kind] + namespace + "/services"
-    elif kind == "persistentvolumeclaim"
+    elif kind == "persistentvolumeclaim":
 	url = api_address + endpoints[kind] + namespace + "/persistentvolumeclaims"
     elif kind == "statefulset":
 	url = api_address + endpoints[kind] + namespace + "/statefulsets"
