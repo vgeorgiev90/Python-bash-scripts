@@ -1,4 +1,7 @@
 #!/usr/bin/python
+## Ansible Kubernetes module with token based authentication
+## TODO: Add a function to check if the provided resource is already present in the cluster
+
 
 from ansible.module_utils.basic import *
 import requests
@@ -22,7 +25,7 @@ namespace
 
 
 Notes:
-There are two ways to provide object data for the moment: kubernetes yaml definition file, or json formatted data
+There are two ways to provide object data for the moment: kubernetes yaml definition file, or yaml formatted data
 """
 
 
@@ -56,6 +59,37 @@ EXAMPLES = """
     type: deployment                                 ## Type may be deployment, configmap
     state: absent
     name: ansible-test                               ## Name is mandatory to be able to find the resource as well as type
+
+# Inline data provided
+
+  - name: Namespace
+    my-kubernetes:
+      api_address: https://api_address:PORT
+      token: TOKEN-HERE
+      type: deployment
+      state: present
+      data:
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          labels:
+            run: nginx
+          name: nginx
+          namespace: my-test
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              run: nginx
+          template:
+            metadata:
+              labels:
+                run: nginx
+            spec:
+              containers:
+              - image: nginx
+                name: test
+
 
 
 """
@@ -98,31 +132,36 @@ class connection():
 
 
     def present(self, data):
-
+        ### Check if inline data is provided or yaml file location
         if data.get('data'):
-            self.obj_data = json.loads(data['data'])
+            obj = data['data']
+            self.obj_data = json.loads(json.dumps(obj))
+            ## Check if resource is cluster scoped (namespace) or other ,
+            ## if other check if namespace parameter is provided , if not assume default
             if data['type'] != 'namespace':
-                if self.obj_data('metadata')['namespace']:
+                try:
                     self.namespace = self.obj_data['metadata']['namespace']
-                else:
+                except KeyError:
                     self.namespace = "default"
         elif data.get('file'):
             file_path = data['file']
             with open(file_path, 'r') as f:
                 obj = f.read()
             self.obj_data = json.loads(json.dumps(yaml.safe_load(obj)))
+            ## Same check as above when reading yaml from file
             if data['type'] != 'namespace':
-                if self.obj_data.get('metadata')['namespace']:
+                try:
                     self.namespace = self.obj_data['metadata']['namespace']
-                else:
+                except KeyError:
                     self.namespace = "default"
+        ## If neither data or file is provided fail the run
         else:
             has_changed = False
             is_error = True
-            meta = "Please provide eith data field with json formated kubernetes data or file with path to the yaml file"
+            meta = "Please provide eith data field with yaml formated kubernetes data or file with path to the yaml file"
             return (has_changed, meta, is_error)
 
-
+        ### Check the kind of the object to craft url
         if self.kind == "deployment":
             url = self.api_address + self.write_endpoints[self.kind] + self.namespace + "/deployments"
         elif self.kind == "configmap":
@@ -155,6 +194,7 @@ class connection():
 
 
     def absent(self, data):
+        ## Check if resource name is provided for deletion , if not fail
         if data.get('name'):
             self.obj_name = data['name']
         else:
@@ -162,18 +202,20 @@ class connection():
             meta = "Please provide object name for absent state"
             is_error = True
             return (has_changed, meta, is_error)
+        ## Get all resources of the provided kind to filter the correct one based on name
         check_url = self.api_address + self.read_endpoints[self.kind]
         requests.packages.urllib3.disable_warnings()
         reply = requests.get(check_url, headers=self.headers ,verify=False)
 
 
         all_objects = reply.json()
-        ## Extract the delete url for the specified deployment
+        ## Extract the delete url for the specified object
         for item in all_objects['items']:
             name = item['metadata']['name']
 
             url = self.api_address + item['metadata']['selfLink']
             if name == self.obj_name:
+                ## If the resource is deployment or statefulset add query parameter propagationPolicy so all child resources are deleted as well
                 if self.kind == 'deployment' or self.kind == 'statefulset':
                     delete = requests.delete(url + "?propagationPolicy=Foreground", headers=self.headers, verify=False)
                 else:
@@ -182,13 +224,11 @@ class connection():
                 meta = delete.json()
                 is_error = False
                 return (has_changed, meta, is_error)
-
+        ## If resource with no such name is found fail
         has_changed = False
         meta = "Object with name: {} not found..".format(self.obj_name)
         is_error = True
         return (has_changed, meta, is_error)
-
-
 
 
 
@@ -214,10 +254,12 @@ def main():
         "name": {"required": False, "type": "str"},
     }
 
+    ## Add the arguments for the module
     module = AnsibleModule(argument_spec=arguments)
+    ## Init our class
     con = connection(module.params)
 
-    ### Choose function based on type and state declared
+    ### Choose function based on type and state declared , #TODO: refactor this as the functions are only two
     choice_map = {
         "deployment": {
                 "present": con.present,
@@ -250,7 +292,7 @@ def main():
 
     }
 
-
+    ## Choose which function to use based on type and state , must be refactored at some time
     has_changed, result, is_error = choice_map.get(module.params['type'])[module.params['state']](module.params)
     ### Check the execution status
     if is_error == False:
