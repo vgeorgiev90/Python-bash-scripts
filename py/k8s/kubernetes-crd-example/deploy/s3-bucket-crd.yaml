@@ -1,0 +1,33 @@
+apiVersion: "apiextensions.k8s.io/v1beta1"
+kind: "CustomResourceDefinition"
+metadata:
+  name: "s3buckets.kubernetes.io"
+spec:
+  group: "kubernetes.io"
+  version: "v1"
+  scope: Cluster
+  names:
+    plural: "s3buckets"
+    singular: "s3bucket"
+    kind: "S3Bucket"
+    shortNames:
+    - s3bck
+  validation:
+    openAPIV3Schema:
+      required: ["spec"]
+      properties:
+        spec:
+          required: ["awsKey","awsSecret","bucketName","awsRegion"]
+          properties:
+            awsKey:
+              type: "object"
+              minimum: 10
+            awsSecret:
+              type: "object"
+              minimum: 10
+            bucketName:
+              type: "string"
+              minimum: 10 
+            awsRegion:
+              type: "string"
+              minimum: 10

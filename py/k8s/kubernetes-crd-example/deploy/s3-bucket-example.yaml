@@ -1,0 +1,17 @@
+apiVersion: kubernetes.io/v1
+kind: S3Bucket
+metadata:
+  name: "s3bucket11"
+spec:
+  awsKey:
+    valueFrom:
+      secretKeyRef:
+        name: s3
+        key: awsKey
+  awsSecret:
+    valueFrom:
+      secretKeyRef:
+        name: s3
+        key: awsSecret
+  bucketName: "mysuperrandombucket9004"
+  awsRegion: "eu-central-1"
