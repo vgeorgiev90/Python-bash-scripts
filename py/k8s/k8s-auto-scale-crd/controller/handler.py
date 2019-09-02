@@ -63,14 +63,9 @@ region = eu-central-1
 
     tags = [{ 'ResourceType': 'instance' , 'Tags': [{ 'Key': 'Name', 'Value': node_name}] }]
 
-    script = """
-#!/bin/bash
-
-sleep 180
-%s
-""" % join_command
-
-    user_data = base64.b64encode(script.encode("utf-8"))
+    script = """#!/bin/bash
+sleep 120
+%s """ % join_command
 
     ec2 = boto3.resource('ec2')
     instances = ec2.create_instances(
@@ -80,7 +75,7 @@ sleep 180
                 SecurityGroupIds = [ 'sg-02a86d13e8ab4e4d0' ],
                 SubnetId = 'subnet-17c15c5a',
                 KeyName = 'k8s-workers',
-                UserData = user_data.decode("utf-8"),
+                UserData = script,
                 TagSpecifications = tags
             )
    
