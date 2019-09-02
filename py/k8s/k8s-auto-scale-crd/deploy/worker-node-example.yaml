@@ -1,0 +1,19 @@
+apiVersion: kubernetes.io/v1
+kind: Worker
+metadata:
+  name: "worker1"
+spec:
+  awsKey:
+    valueFrom:
+      secretKeyRef:
+        name: s3
+        key: awsKey
+  awsSecret:
+    valueFrom:
+      secretKeyRef:
+        name: s3
+        key: awsSecret
+  nodeName: "node-1"
+  awsRegion: "eu-central-1"
+  nodeType: "t2.micro"
+  joinCommand: "kubeadm join viktorgeorgiev1c.mylabserver.com:6443 --token xzw9lu.90mw2udc4sx2s9la --discovery-token-ca-cert-hash sha256:b6dba76cb259376d2e5dfcf23523693838cc7eff305d4bc7562d77082b06b1f6"

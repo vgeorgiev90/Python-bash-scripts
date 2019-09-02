@@ -1,0 +1,39 @@
+apiVersion: "apiextensions.k8s.io/v1beta1"
+kind: "CustomResourceDefinition"
+metadata:
+  name: "workers.kubernetes.io"
+spec:
+  group: "kubernetes.io"
+  version: "v1"
+  scope: Cluster
+  names:
+    plural: "workers"
+    singular: "worker"
+    kind: "Worker"
+    shortNames:
+    - wrk
+  validation:
+    openAPIV3Schema:
+      required: ["spec"]
+      properties:
+        spec:
+          required: ["awsKey","awsSecret","nodeName","awsRegion","nodeType", "joinCommand"]
+          properties:
+            awsKey:
+              type: "object"
+              minimum: 10
+            awsSecret:
+              type: "object"
+              minimum: 10
+            nodeName:
+              type: "string"
+              minimum: 10 
+            awsRegion:
+              type: "string"
+              minimum: 10
+            nodeType:
+              type: "string"
+              minimum: 10
+            joinCommand:
+              type: "string"
+              minimum: 20
